@@ -2,30 +2,30 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>🏓 Giải Đấu Pickleball - Robin Round</title>
     <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
             --primary: #ff6b35;
-            --primary-dark: #e55a2b;
-            --secondary: #004e89;
+            --primary-glow: rgba(255,107,53,0.4);
+            --secondary: #00b4d8;
             --accent: #ffd166;
-            --dark: #0a0e17;
-            --dark-card: #111827;
-            --dark-card2: #1a2235;
-            --text: #e2e8f0;
-            --text-muted: #94a3b8;
+            --bg-dark: #0b0f19;
+            --bg-card: #141a2b;
+            --bg-card-hover: #1c2438;
+            --border: rgba(255,255,255,0.06);
+            --text: #e8ecf4;
+            --text-dim: #7a8ba5;
             --green: #22c55e;
             --red: #ef4444;
-            --border: rgba(255,255,255,0.08);
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
-            font-family: 'Inter', sans-serif;
-            background: var(--dark);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-dark);
             color: var(--text);
             min-height: 100vh;
             overflow-x: hidden;
@@ -34,356 +34,331 @@
         body::before {
             content: '';
             position: fixed;
-            top: 0; left: 0; right: 0; bottom: 0;
+            inset: 0;
             background: 
-                radial-gradient(ellipse at 20% 50%, rgba(255,107,53,0.08) 0%, transparent 50%),
-                radial-gradient(ellipse at 80% 20%, rgba(0,78,137,0.1) 0%, transparent 50%),
-                radial-gradient(ellipse at 50% 80%, rgba(255,209,102,0.05) 0%, transparent 50%);
+                radial-gradient(ellipse at 15% 20%, rgba(255,107,53,0.07) 0%, transparent 45%),
+                radial-gradient(ellipse at 85% 80%, rgba(0,180,216,0.07) 0%, transparent 45%);
             pointer-events: none;
             z-index: 0;
         }
 
-        .container {
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 20px;
+        .wrapper {
             position: relative;
             z-index: 1;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 16px 12px 40px;
         }
 
         /* Header */
-        .header {
+        header {
             text-align: center;
-            padding: 40px 20px 30px;
-            position: relative;
+            padding: 24px 8px 28px;
         }
 
-        .header-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            background: linear-gradient(135deg, var(--primary), var(--accent));
+        .badge {
+            display: inline-block;
+            background: linear-gradient(90deg, var(--primary), var(--accent));
             color: #000;
-            padding: 6px 20px;
-            border-radius: 50px;
             font-family: 'Oswald', sans-serif;
-            font-weight: 600;
-            font-size: 0.85rem;
-            letter-spacing: 2px;
+            font-weight: 700;
+            font-size: 0.7rem;
+            letter-spacing: 2.5px;
             text-transform: uppercase;
-            margin-bottom: 16px;
-            animation: pulseGlow 2s ease-in-out infinite;
+            padding: 5px 16px;
+            border-radius: 30px;
+            margin-bottom: 14px;
+            box-shadow: 0 0 18px var(--primary-glow);
         }
 
-        @keyframes pulseGlow {
-            0%, 100% { box-shadow: 0 0 20px rgba(255,107,53,0.3); }
-            50% { box-shadow: 0 0 40px rgba(255,107,53,0.5); }
-        }
-
-        .header h1 {
+        header h1 {
             font-family: 'Oswald', sans-serif;
-            font-size: clamp(2.2rem, 5vw, 3.8rem);
+            font-size: clamp(1.8rem, 6vw, 2.8rem);
             font-weight: 700;
             text-transform: uppercase;
-            letter-spacing: 3px;
-            background: linear-gradient(135deg, #fff 0%, var(--accent) 50%, var(--primary) 100%);
+            letter-spacing: 2px;
+            background: linear-gradient(135deg, #fff 30%, var(--accent), var(--primary));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
-            line-height: 1.1;
-            margin-bottom: 10px;
+            line-height: 1.05;
         }
 
-        .header p {
-            color: var(--text-muted);
-            font-size: 1.05rem;
-            font-weight: 300;
+        header p {
+            color: var(--text-dim);
+            margin-top: 8px;
+            font-size: 0.9rem;
         }
 
-        .header-line {
-            width: 80px;
-            height: 4px;
+        .divider {
+            width: 60px; height: 3px;
             background: linear-gradient(90deg, var(--primary), var(--accent));
-            margin: 20px auto 0;
+            margin: 16px auto 0;
             border-radius: 2px;
         }
 
-        /* Section Titles */
-        .section-title {
+        /* Section */
+        .section { margin-bottom: 28px; }
+
+        .section-head {
             display: flex;
             align-items: center;
-            gap: 14px;
-            margin: 40px 0 24px;
-            padding-bottom: 16px;
-            border-bottom: 2px solid var(--border);
+            gap: 10px;
+            margin-bottom: 14px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--border);
         }
 
-        .section-title .icon {
-            width: 48px;
-            height: 48px;
-            border-radius: 12px;
+        .section-icon {
+            width: 38px; height: 38px;
+            border-radius: 10px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.5rem;
+            font-size: 1.2rem;
             flex-shrink: 0;
         }
 
-        .section-title .icon.rank { background: linear-gradient(135deg, var(--primary), #ff8f5e); }
-        .section-title .icon.match { background: linear-gradient(135deg, var(--secondary), #0077b6); }
+        .icon-rank { background: linear-gradient(135deg, var(--primary), #ff9248); }
+        .icon-match { background: linear-gradient(135deg, var(--secondary), #0096c7); }
 
-        .section-title h2 {
+        .section-head h2 {
             font-family: 'Oswald', sans-serif;
-            font-size: 1.6rem;
+            font-size: 1.25rem;
             font-weight: 600;
             text-transform: uppercase;
             letter-spacing: 1px;
         }
 
-        .section-title h2 span {
-            color: var(--primary);
-        }
+        .section-head h2 span { color: var(--accent); }
 
-        .section-title .match-count {
+        .badge-count {
             margin-left: auto;
-            background: var(--dark-card2);
-            padding: 4px 14px;
-            border-radius: 20px;
-            font-size: 0.85rem;
-            color: var(--text-muted);
+            background: var(--bg-card);
             border: 1px solid var(--border);
+            padding: 3px 10px;
+            border-radius: 14px;
+            font-size: 0.75rem;
+            color: var(--text-dim);
         }
 
         /* Loading */
-        .loading-overlay {
+        .loader {
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
-            padding: 60px 20px;
-            gap: 20px;
+            padding: 36px 12px;
+            gap: 14px;
         }
 
         .spinner {
-            width: 50px;
-            height: 50px;
-            border: 4px solid var(--border);
+            width: 40px; height: 40px;
+            border: 3px solid var(--border);
             border-top-color: var(--primary);
             border-radius: 50%;
-            animation: spin 0.8s linear infinite;
+            animation: rotate 0.7s linear infinite;
         }
 
-        @keyframes spin { to { transform: rotate(360deg); } }
+        @keyframes rotate { to { transform: rotate(360deg); } }
 
-        .loading-text {
-            color: var(--text-muted);
-            font-size: 0.95rem;
-        }
+        .loader-text { color: var(--text-dim); font-size: 0.85rem; }
 
         /* Ranking Table */
-        .ranking-table-wrapper {
-            background: var(--dark-card);
-            border-radius: 16px;
+        .rank-wrap {
+            background: var(--bg-card);
+            border-radius: 14px;
             border: 1px solid var(--border);
-            overflow: hidden;
-            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.25);
         }
 
-        .ranking-table {
+        .rank-table {
             width: 100%;
             border-collapse: collapse;
+            min-width: 320px;
+            font-size: 0.85rem;
         }
 
-        .ranking-table thead th {
-            background: linear-gradient(135deg, rgba(255,107,53,0.15), rgba(0,78,137,0.15));
-            padding: 14px 16px;
+        .rank-table thead th {
+            background: rgba(255,107,53,0.1);
+            padding: 11px 10px;
             font-family: 'Oswald', sans-serif;
             font-weight: 600;
-            font-size: 0.9rem;
+            font-size: 0.75rem;
             text-transform: uppercase;
-            letter-spacing: 1px;
+            letter-spacing: 0.8px;
             text-align: center;
             color: var(--accent);
             border-bottom: 2px solid var(--primary);
             white-space: nowrap;
+            position: sticky;
+            top: 0;
         }
 
-        .ranking-table thead th:first-child {
-            text-align: center;
-            width: 60px;
-        }
+        .rank-table thead th:first-child { width: 42px; }
 
-        .ranking-table tbody tr {
-            transition: all 0.2s ease;
+        .rank-table tbody tr {
             border-bottom: 1px solid var(--border);
+            transition: background 0.15s;
         }
 
-        .ranking-table tbody tr:hover {
-            background: rgba(255,107,53,0.05);
-        }
+        .rank-table tbody tr:hover { background: rgba(255,107,53,0.04); }
+        .rank-table tbody tr:last-child { border-bottom: none; }
 
-        .ranking-table tbody tr:last-child { border-bottom: none; }
-
-        .ranking-table tbody td {
-            padding: 12px 16px;
+        .rank-table td {
+            padding: 10px 10px;
             text-align: center;
-            font-size: 0.95rem;
-            font-weight: 400;
+            vertical-align: middle;
         }
 
-        .ranking-table tbody td:first-child {
+        .rank-table td:first-child {
             font-family: 'Oswald', sans-serif;
             font-weight: 700;
-            font-size: 1.1rem;
+            font-size: 0.95rem;
         }
 
-        .rank-badge {
+        .rank-table td:nth-child(2) {
+            text-align: left;
+            font-weight: 500;
+        }
+
+        .rank-num {
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            width: 32px;
-            height: 32px;
+            width: 28px; height: 28px;
             border-radius: 50%;
-            font-size: 0.85rem;
+            font-size: 0.78rem;
         }
 
-        .rank-1 { background: linear-gradient(135deg, #ffd700, #ffaa00); color: #000; }
-        .rank-2 { background: linear-gradient(135deg, #c0c0c0, #a0a0a0); color: #000; }
-        .rank-3 { background: linear-gradient(135deg, #cd7f32, #b8690e); color: #fff; }
-        .rank-other { background: var(--dark-card2); color: var(--text-muted); }
-
-        .player-name-cell {
-            text-align: left !important;
-            font-weight: 500 !important;
-        }
-
-        .stat-cell {
-            font-weight: 600;
-            color: var(--accent);
-        }
+        .r1 { background: linear-gradient(135deg, #ffd700, #ffaa00); color: #000; box-shadow: 0 0 8px rgba(255,215,0,0.5); }
+        .r2 { background: linear-gradient(135deg, #c0c0c0, #8a8a8a); color: #000; }
+        .r3 { background: linear-gradient(135deg, #cd7f32, #a05a18); color: #fff; }
+        .r0 { background: var(--bg-card-hover); color: var(--text-dim); }
 
         /* Match Cards */
-        .matches-grid {
+        .match-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
-            gap: 16px;
+            gap: 12px;
         }
 
         .match-card {
-            background: var(--dark-card);
-            border-radius: 16px;
+            background: var(--bg-card);
+            border-radius: 14px;
             border: 1px solid var(--border);
             overflow: hidden;
-            transition: all 0.3s ease;
-            animation: fadeInUp 0.5s ease forwards;
+            transition: all 0.25s ease;
+            animation: fadeUp 0.45s ease forwards;
             opacity: 0;
         }
 
         .match-card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 12px 40px rgba(255,107,53,0.15);
-            border-color: rgba(255,107,53,0.3);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 28px rgba(255,107,53,0.12);
+            border-color: rgba(255,107,53,0.25);
         }
 
-        @keyframes fadeInUp {
-            from { opacity: 0; transform: translateY(20px); }
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(14px); }
             to { opacity: 1; transform: translateY(0); }
         }
 
-        .match-card-header {
+        .mc-head {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 10px 16px;
-            background: rgba(255,255,255,0.02);
+            padding: 9px 14px;
+            background: rgba(255,255,255,0.015);
             border-bottom: 1px solid var(--border);
         }
 
-        .match-round {
+        .mc-round {
             font-family: 'Oswald', sans-serif;
-            font-size: 0.8rem;
+            font-size: 0.72rem;
             font-weight: 500;
-            text-transform: uppercase;
             letter-spacing: 1px;
-            color: var(--text-muted);
+            text-transform: uppercase;
+            color: var(--text-dim);
+            background: var(--bg-card-hover);
             padding: 3px 10px;
-            background: var(--dark-card2);
-            border-radius: 20px;
+            border-radius: 12px;
             border: 1px solid var(--border);
         }
 
-        .match-status {
-            font-size: 0.75rem;
+        .mc-status {
+            font-size: 0.68rem;
             font-weight: 600;
-            padding: 3px 10px;
-            border-radius: 20px;
+            padding: 3px 9px;
+            border-radius: 12px;
             text-transform: uppercase;
             letter-spacing: 0.5px;
         }
 
-        .match-status.completed {
+        .mc-status.done {
             background: rgba(34,197,94,0.15);
             color: var(--green);
             border: 1px solid rgba(34,197,94,0.3);
         }
 
-        .match-status.pending {
+        .mc-status.wait {
             background: rgba(255,209,102,0.15);
             color: var(--accent);
             border: 1px solid rgba(255,209,102,0.3);
         }
 
-        .match-card-body {
-            padding: 20px 16px;
+        .mc-body {
+            padding: 16px 12px;
         }
 
-        .match-teams {
+        .mc-teams {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            gap: 12px;
+            gap: 8px;
         }
 
-        .match-team {
+        .mc-team {
             flex: 1;
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 6px;
+            gap: 5px;
+            text-align: center;
         }
 
-        .match-team-label {
-            font-size: 0.7rem;
+        .mc-team-label {
+            font-size: 0.65rem;
             font-weight: 600;
             text-transform: uppercase;
-            letter-spacing: 1px;
-            color: var(--text-muted);
+            letter-spacing: 1.2px;
+            color: var(--text-dim);
         }
 
-        .match-team-players {
-            text-align: center;
+        .mc-team-names {
             font-weight: 600;
-            font-size: 0.95rem;
-            line-height: 1.4;
-        }
-
-        .match-team-players .amp {
-            color: var(--text-muted);
-            font-weight: 400;
             font-size: 0.85rem;
+            line-height: 1.45;
         }
 
-        .match-vs {
+        .mc-team-names .amp {
+            display: block;
+            color: var(--text-dim);
+            font-weight: 400;
+            font-size: 0.75rem;
+        }
+
+        .mc-vs {
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 4px;
+            gap: 6px;
             flex-shrink: 0;
+            min-width: 70px;
         }
 
-        .vs-badge {
-            width: 40px;
-            height: 40px;
+        .vs-circle {
+            width: 36px; height: 36px;
             border-radius: 50%;
             background: linear-gradient(135deg, var(--primary), var(--accent));
             display: flex;
@@ -391,361 +366,262 @@
             justify-content: center;
             font-family: 'Oswald', sans-serif;
             font-weight: 700;
-            font-size: 0.85rem;
+            font-size: 0.75rem;
             color: #000;
         }
 
-        .match-score {
+        .mc-score-row {
             display: flex;
             align-items: center;
-            gap: 8px;
-            font-family: 'Oswald', sans-serif;
-            font-size: 1.6rem;
-            font-weight: 700;
+            gap: 5px;
         }
 
-        .match-score .score {
-            padding: 4px 12px;
-            border-radius: 8px;
-            min-width: 36px;
+        .mc-score {
+            font-family: 'Oswald', sans-serif;
+            font-size: 1.4rem;
+            font-weight: 700;
+            min-width: 30px;
             text-align: center;
+            padding: 2px 6px;
+            border-radius: 6px;
         }
 
-        .match-score .score.team1 {
-            background: rgba(255,107,53,0.15);
+        .mc-score.s1 {
             color: var(--primary);
-            border: 1px solid rgba(255,107,53,0.3);
+            background: rgba(255,107,53,0.12);
+            border: 1px solid rgba(255,107,53,0.25);
         }
 
-        .match-score .score.team2 {
-            background: rgba(0,78,137,0.2);
-            color: #4da6ff;
-            border: 1px solid rgba(0,78,137,0.4);
+        .mc-score.s2 {
+            color: var(--secondary);
+            background: rgba(0,180,216,0.12);
+            border: 1px solid rgba(0,180,216,0.25);
         }
 
-        .match-score .separator {
-            color: var(--text-muted);
-            font-size: 1.2rem;
+        .mc-score.sep {
+            color: var(--text-dim);
+            font-size: 1rem;
+            padding: 0;
+            background: none;
+            border: none;
+            min-width: auto;
         }
 
-        .match-wins {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 16px;
-            margin-top: 12px;
-            padding-top: 12px;
-            border-top: 1px solid var(--border);
-        }
-
-        .win-label {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            font-size: 0.8rem;
-            color: var(--text-muted);
-        }
-
-        .win-dot {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-        }
-
-        .win-dot.t1 { background: var(--primary); }
-        .win-dot.t2 { background: #4da6ff; }
-
-        .win-value {
-            font-family: 'Oswald', sans-serif;
-            font-weight: 700;
-            font-size: 1.1rem;
-            color: var(--accent);
-        }
-
-        .no-score {
-            color: var(--text-muted);
-            font-size: 0.85rem;
+        .mc-noscore {
+            color: var(--text-dim);
+            font-size: 0.75rem;
             font-style: italic;
         }
 
-        /* Error */
-        .error-box {
-            background: rgba(239,68,68,0.1);
-            border: 1px solid rgba(239,68,68,0.3);
-            border-radius: 12px;
-            padding: 24px;
-            text-align: center;
-            color: var(--red);
+        .mc-footer {
+            margin-top: 12px;
+            padding-top: 10px;
+            border-top: 1px solid var(--border);
+            display: flex;
+            justify-content: center;
+            gap: 14px;
         }
 
-        .error-box h3 { margin-bottom: 8px; }
-        .error-box p { color: var(--text-muted); font-size: 0.9rem; }
+        .mc-wins {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 0.78rem;
+            color: var(--text-dim);
+        }
+
+        .mc-wins strong {
+            color: var(--accent);
+            font-family: 'Oswald', sans-serif;
+            font-size: 1rem;
+        }
+
+        /* Error */
+        .err-box {
+            background: rgba(239,68,68,0.08);
+            border: 1px solid rgba(239,68,68,0.25);
+            border-radius: 12px;
+            padding: 20px 16px;
+            text-align: center;
+        }
+
+        .err-box h3 { color: var(--red); margin-bottom: 6px; font-size: 1rem; }
+        .err-box p { color: var(--text-dim); font-size: 0.85rem; }
 
         /* Footer */
-        .footer {
+        footer {
             text-align: center;
-            padding: 40px 20px;
-            color: var(--text-muted);
-            font-size: 0.85rem;
-        }
-
-        .footer a {
-            color: var(--primary);
-            text-decoration: none;
-        }
-
-        /* Responsive */
-        @media (max-width: 768px) {
-            .container { padding: 12px; }
-            .header { padding: 24px 12px 20px; }
-            .matches-grid { grid-template-columns: 1fr; }
-            .ranking-table { font-size: 0.85rem; }
-            .ranking-table thead th,
-            .ranking-table tbody td { padding: 10px 8px; }
-            .section-title h2 { font-size: 1.3rem; }
-        }
-
-        @media (max-width: 480px) {
-            .matches-grid { grid-template-columns: 1fr; }
-            .match-team-players { font-size: 0.85rem; }
-            .match-score { font-size: 1.3rem; }
+            padding: 30px 12px 10px;
+            color: var(--text-dim);
+            font-size: 0.78rem;
         }
 
         /* Scrollbar */
-        ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-track { background: var(--dark); }
-        ::-webkit-scrollbar-thumb { background: var(--dark-card2); border-radius: 4px; }
-        ::-webkit-scrollbar-thumb:hover { background: var(--primary); }
+        ::-webkit-scrollbar { width: 5px; height: 5px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: var(--bg-card-hover); border-radius: 3px; }
+
+        /* Responsive tweaks */
+        @media (max-width: 420px) {
+            .mc-team-names { font-size: 0.8rem; }
+            .mc-score { font-size: 1.25rem; min-width: 26px; }
+            .vs-circle { width: 32px; height: 32px; font-size: 0.7rem; }
+            .mc-vs { min-width: 60px; }
+            .rank-table { font-size: 0.8rem; }
+            .rank-table th, .rank-table td { padding: 9px 6px; }
+        }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <!-- Header -->
-    <div class="header">
-        <div class="header-badge">🏓 Robin Round Tournament</div>
+<div class="wrapper">
+    <header>
+        <div class="badge">🏓 Robin Round</div>
         <h1>Giải Đấu Pickleball</h1>
         <p>Bảng xếp hạng & Lịch thi đấu</p>
-        <div class="header-line"></div>
-    </div>
+        <div class="divider"></div>
+    </header>
 
-    <!-- Ranking Section -->
-    <div class="section-title">
-        <div class="icon rank">🏆</div>
-        <h2>Bảng <span>Xếp Hạng</span></h2>
-    </div>
-    <div id="ranking-container">
-        <div class="loading-overlay">
-            <div class="spinner"></div>
-            <div class="loading-text">Đang tải bảng xếp hạng...</div>
+    <!-- Ranking -->
+    <section class="section">
+        <div class="section-head">
+            <div class="section-icon icon-rank">🏆</div>
+            <h2>Bảng <span>Xếp Hạng</span></h2>
         </div>
-    </div>
-
-    <!-- Matches Section -->
-    <div class="section-title">
-        <div class="icon match">⚡</div>
-        <h2>Lịch Thi Đấu & <span>Kết Quả</span></h2>
-        <div class="match-count" id="match-count"></div>
-    </div>
-    <div id="matches-container">
-        <div class="loading-overlay">
-            <div class="spinner"></div>
-            <div class="loading-text">Đang tải lịch thi đấu...</div>
+        <div id="rank-area">
+            <div class="loader"><div class="spinner"></div><span class="loader-text">Đang tải...</span></div>
         </div>
-    </div>
+    </section>
 
-    <!-- Footer -->
-    <div class="footer">
-        <p>🏓 Dữ liệu được đồng bộ từ Google Sheets</p>
-    </div>
+    <!-- Matches -->
+    <section class="section">
+        <div class="section-head">
+            <div class="section-icon icon-match">⚡</div>
+            <h2>Lịch Thi Đấu & <span>Kết Quả</span></h2>
+            <div class="badge-count" id="mc-count"></div>
+        </div>
+        <div id="match-area">
+            <div class="loader"><div class="spinner"></div><span class="loader-text">Đang tải...</span></div>
+        </div>
+    </section>
+
+    <footer>🏓 Dữ liệu đồng bộ từ Google Sheets</footer>
 </div>
 
 <script>
     const SHEET_ID = '1GUr4TFhq_Ha65en9vthhtii35-RWg28qeEcLiVJaVek';
-    const BASE_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq`;
+    const BASE = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq`;
 
-    function fetchSheet(sheetName, range) {
-        const url = `${BASE_URL}?tqx=out:json&sheet=${encodeURIComponent(sheetName)}&range=${encodeURIComponent(range)}`;
-        return fetch(url)
-            .then(res => res.text())
-            .then(text => {
-                const jsonStr = text.match(/google\.visualization\.Query\.setResponse\(([\s\S]*)\);/);
-                if (!jsonStr) throw new Error('Không thể parse dữ liệu từ Google Sheets');
-                return JSON.parse(jsonStr[1]);
-            });
+    function getSheet(sheetName, range) {
+        const url = `${BASE}?tqx=out:json&sheet=${encodeURIComponent(sheetName)}&range=${encodeURIComponent(range)}`;
+        return fetch(url).then(r => r.text()).then(txt => {
+            const m = txt.match(/google\.visualization\.Query\.setResponse\(([\s\S]*?)\);?$/);
+            if (!m) throw new Error('Parse data failed');
+            return JSON.parse(m[1]);
+        });
     }
 
-    function getCellValue(row, colIndex) {
-        if (!row.c || !row.c[colIndex]) return '';
-        return row.c[colIndex].v != null ? row.c[colIndex].v : '';
+    function val(row, ci) {
+        if (!row.c || !row.c[ci] || row.c[ci].v == null) return '';
+        return String(row.c[ci].v);
     }
 
-    // Render Ranking Table
     function renderRanking(data) {
-        const container = document.getElementById('ranking-container');
-        const table = data.table;
-        if (!table || !table.rows || table.rows.length === 0) {
-            container.innerHTML = '<div class="error-box"><h3>Không có dữ liệu</h3><p>Không tìm thấy dữ liệu bảng xếp hạng.</p></div>';
+        const el = document.getElementById('rank-area');
+        const t = data.table;
+        if (!t || !t.rows || t.rows.length === 0) {
+            el.innerHTML = '<div class="err-box"><h3>Không có dữ liệu</h3></div>';
             return;
         }
+        const hdrs = t.cols.map(c => c.label || '');
+        let h = '<div class="rank-wrap"><table class="rank-table"><thead><tr><th>#</th>';
+        hdrs.forEach(x => { h += `<th>${x}</th>`; });
+        h += '</tr></thead><tbody>';
 
-        const headers = table.cols.map(col => col.label || '');
-        const rows = table.rows;
-
-        let html = `<div class="ranking-table-wrapper">
-            <table class="ranking-table">
-                <thead><tr>
-                    <th>#</th>
-                    ${headers.map(h => `<th>${h}</th>`).join('')}
-                </tr></thead>
-                <tbody>`;
-
-        rows.forEach((row, idx) => {
-            const hasData = row.c && row.c.some(cell => cell && cell.v !== '' && cell.v !== null);
-            if (!hasData) return;
-
-            const rankClass = idx < 3 ? `rank-${idx + 1}` : 'rank-other';
-            html += `<tr>
-                <td><span class="rank-badge ${rankClass}">${idx + 1}</span></td>`;
-            
-            for (let i = 0; i < headers.length; i++) {
-                const val = getCellValue(row, i);
-                const isPlayerName = i === 0;
-                const isStat = i >= 1;
-                html += `<td class="${isPlayerName ? 'player-name-cell' : ''} ${isStat ? 'stat-cell' : ''}">${val}</td>`;
+        t.rows.forEach((row, i) => {
+            const has = row.c && row.c.some(c => c && c.v !== '' && c.v !== null);
+            if (!has) return;
+            const rc = i < 3 ? `r${i+1}` : 'r0';
+            h += `<tr><td><span class="rank-num ${rc}">${i+1}</span></td>`;
+            for (let j = 0; j < hdrs.length; j++) {
+                const cls = j === 1 ? ' style="text-align:left;font-weight:500"' : '';
+                h += `<td${cls}>${val(row, j)}</td>`;
             }
-            html += `</tr>`;
+            h += '</tr>';
         });
 
-        html += `</tbody></table></div>`;
-        container.innerHTML = html;
+        h += '</tbody></table></div>';
+        el.innerHTML = h;
     }
 
-    // Render Match Cards
     function renderMatches(data) {
-        const container = document.getElementById('matches-container');
-        const countEl = document.getElementById('match-count');
-        const table = data.table;
-        
-        if (!table || !table.rows || table.rows.length === 0) {
-            container.innerHTML = '<div class="error-box"><h3>Không có dữ liệu</h3><p>Không tìm thấy dữ liệu lịch thi đấu.</p></div>';
-            countEl.textContent = '';
+        const el = document.getElementById('match-area');
+        const cnt = document.getElementById('mc-count');
+        const t = data.table;
+        if (!t || !t.rows || t.rows.length === 0) {
+            el.innerHTML = '<div class="err-box"><h3>Không có dữ liệu</h3></div>';
+            cnt.textContent = '';
             return;
         }
 
-        // Column mapping based on user request:
-        // A: index 0, B: index 1, C: index 2, D: index 3, E: index 4, F: index 5, G: index 6, H: index 7, I: index 8, J: index 9
-        // Team 1 players: B (1) & C (2)
-        // Team 2 players: D (3) & E (4)
-        // Team 1 score: G (6)
-        // Team 2 score: H (7)
-        // Team 1 wins: I (8)
-        // Team 2 wins: J (9)
-        // Round/Match info: A (0)
+        // Columns: A=0(round) B=1(t1p1) C=2(t1p2) D=3(t2p1) E=4(t2p2) F=5 G=6(score1) H=7(score2)
+        let count = 0;
+        let h = '<div class="match-grid">';
 
-        const rows = table.rows;
-        let matchCount = 0;
-        let html = '<div class="matches-grid">';
+        t.rows.forEach((row, idx) => {
+            const has = row.c && row.c.some(c => c && c.v !== '' && c.v !== null);
+            if (!has) return;
+            count++;
 
-        rows.forEach((row, idx) => {
-            const hasData = row.c && row.c.some(cell => cell && cell.v !== '' && cell.v !== null);
-            if (!hasData) return;
-            matchCount++;
+            const round = val(row, 0);
+            const t1p1 = val(row, 1);
+            const t1p2 = val(row, 2);
+            const t2p1 = val(row, 3);
+            const t2p2 = val(row, 4);
+            const s1 = val(row, 6);
+            const s2 = val(row, 7);
+            const hasScore = s1 !== '' && s2 !== '';
+            const stCls = hasScore ? 'done' : 'wait';
+            const stTxt = hasScore ? 'Hoàn thành' : 'Chờ đấu';
+            const delay = Math.min(idx * 0.04, 1.5);
 
-            const roundInfo = getCellValue(row, 0);
-            const team1_p1 = getCellValue(row, 1);
-            const team1_p2 = getCellValue(row, 2);
-            const team2_p1 = getCellValue(row, 3);
-            const team2_p2 = getCellValue(row, 4);
-            const team1_score = getCellValue(row, 6);
-            const team2_score = getCellValue(row, 7);
-            const team1_wins = getCellValue(row, 8);
-            const team2_wins = getCellValue(row, 9);
+            h += `<div class="match-card" style="animation-delay:${delay}s">`;
+            h += `<div class="mc-head"><span class="mc-round">${round || 'Trận ' + count}</span><span class="mc-status ${stCls}">${stTxt}</span></div>`;
+            h += `<div class="mc-body"><div class="mc-teams">`;
 
-            const hasScore = team1_score !== '' && team2_score !== '';
-            const statusClass = hasScore ? 'completed' : 'pending';
-            const statusText = hasScore ? 'Hoàn thành' : 'Chờ đấu';
+            h += `<div class="mc-team"><span class="mc-team-label">Đội 1</span><div class="mc-team-names">${t1p1}<span class="amp">&</span>${t1p2}</div></div>`;
 
-            const delay = idx * 0.05;
+            h += `<div class="mc-vs"><div class="vs-circle">VS</div>`;
+            if (hasScore) {
+                h += `<div class="mc-score-row"><span class="mc-score s1">${s1}</span><span class="mc-score sep">-</span><span class="mc-score s2">${s2}</span></div>`;
+            } else {
+                h += `<span class="mc-noscore">Chưa đấu</span>`;
+            }
+            h += `</div>`;
 
-            html += `
-                <div class="match-card" style="animation-delay: ${delay}s">
-                    <div class="match-card-header">
-                        <span class="match-round">${roundInfo || 'Trận ' + matchCount}</span>
-                        <span class="match-status ${statusClass}">${statusText}</span>
-                    </div>
-                    <div class="match-card-body">
-                        <div class="match-teams">
-                            <div class="match-team">
-                                <span class="match-team-label">Đội 1</span>
-                                <div class="match-team-players">
-                                    ${team1_p1}<br><span class="amp">&</span><br>${team1_p2}
-                                </div>
-                            </div>
-                            <div class="match-vs">
-                                <div class="vs-badge">VS</div>
-                                ${hasScore ? `
-                                    <div class="match-score">
-                                        <span class="score team1">${team1_score}</span>
-                                        <span class="separator">-</span>
-                                        <span class="score team2">${team2_score}</span>
-                                    </div>
-                                ` : '<span class="no-score">Chưa thi đấu</span>'}
-                            </div>
-                            <div class="match-team">
-                                <span class="match-team-label">Đội 2</span>
-                                <div class="match-team-players">
-                                    ${team2_p1}<br><span class="amp">&</span><br>${team2_p2}
-                                </div>
-                            </div>
-                        </div>
-                        ${hasScore ? `
-                            <div class="match-wins">
-                                <div class="win-label">
-                                    <span class="win-dot t1"></span>
-                                    Đội 1 thắng: <span class="win-value">${team1_wins || '-'}</span>
-                                </div>
-                                <div class="win-label">
-                                    Đội 2 thắng: <span class="win-value">${team2_wins || '-'}</span>
-                                    <span class="win-dot t2"></span>
-                                </div>
-                            </div>
-                        ` : ''}
-                    </div>
-                </div>
-            `;
+            h += `<div class="mc-team"><span class="mc-team-label">Đội 2</span><div class="mc-team-names">${t2p1}<span class="amp">&</span>${t2p2}</div></div>`;
+
+            h += `</div></div></div>`;
         });
 
-        html += '</div>';
-        container.innerHTML = html;
-        countEl.textContent = `${matchCount} trận đấu`;
+        h += '</div>';
+        el.innerHTML = h;
+        cnt.textContent = `${count} trận`;
     }
 
-    // Initialize
     async function init() {
         try {
-            const [rankingRes, matchesRes] = await Promise.all([
-                fetchSheet('danhsachvdv', 'E1:I25'),
-                fetchSheet('lichthidau', 'A:J')
+            const [rankRes, matchRes] = await Promise.all([
+                getSheet('danhsachvdv', 'E1:I25'),
+                getSheet('lichthidau', 'A2:H100')
             ]);
-
-            renderRanking(rankingRes);
-            renderMatches(matchesRes);
-        } catch (err) {
-            console.error(err);
-            document.getElementById('ranking-container').innerHTML = `
-                <div class="error-box">
-                    <h3>⚠️ Lỗi tải dữ liệu</h3>
-                    <p>${err.message}</p>
-                    <p style="margin-top:8px;">Vui lòng đảm bảo Google Sheet đã được chia sẻ công khai.</p>
-                </div>
-            `;
-            document.getElementById('matches-container').innerHTML = `
-                <div class="error-box">
-                    <h3>⚠️ Lỗi tải dữ liệu</h3>
-                    <p>${err.message}</p>
-                </div>
-            `;
+            renderRanking(rankRes);
+            renderMatches(matchRes);
+        } catch (e) {
+            console.error(e);
+            const errMsg = `<div class="err-box"><h3>⚠️ Lỗi tải dữ liệu</h3><p>${e.message}</p><p style="margin-top:6px;font-size:0.8rem;">Đảm bảo Google Sheet đã chia sẻ công khai.</p></div>`;
+            document.getElementById('rank-area').innerHTML = errMsg;
+            document.getElementById('match-area').innerHTML = errMsg;
         }
     }
 
