@@ -1,6 +1,174 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🏓 Pickleball PRO</title>
+
+<style>
+body{
+    font-family: Arial;
+    background:#0b0f19;
+    color:#fff;
+    padding:10px;
+    max-width:600px;
+    margin:auto;
+}
+
+h1{text-align:center;}
+
+.card{
+    background:#141a2b;
+    border-radius:10px;
+    padding:10px;
+    margin-bottom:10px;
+}
+
+input{
+    width:50px;
+    font-size:20px;
+    text-align:center;
+}
+
+button{
+    padding:8px;
+    margin-top:5px;
+    width:100%;
+    background:#ff6b35;
+    border:none;
+    color:#000;
+    font-weight:bold;
+    border-radius:6px;
+}
+
+.saved{background:#22c55e;color:#fff;}
+
+table{
+    width:100%;
+    border-collapse:collapse;
+}
+
+td,th{
+    border-bottom:1px solid #333;
+    padding:6px;
+    text-align:center;
+}
+
+</style>
+</head>
+
+<body>
+
+<h1>🏓 PICKLEBALL PRO</h1>
+
+<h2>🏆 Bảng xếp hạng</h2>
+<div id="ranking">Loading...</div>
+
+<h2>🎯 Nhập tỷ số</h2>
+<div id="matches">Loading...</div>
+
+<script>
+
+const API = "https://script.google.com/macros/s/AKfycbz23eit7z3vdtLjjbTCG-WoeXvp4P5l0JOFuItpAyaD0WPtzMfavFVWqlEVsdbft-ysIw/exec";
+
+
+// ===== LOAD DATA =====
+async function loadData(){
+    try{
+        const res = await fetch(API);
+        const data = await res.json();
+
+        renderRanking(data.ranking);
+        renderMatches(data.matches);
+
+    }catch(e){
+        document.body.innerHTML = "❌ Lỗi load API";
+        console.error(e);
+    }
+}
+
+
+// ===== RENDER RANK =====
+function renderRanking(list){
+    let html = "<table><tr><th>#</th><th>Tên</th><th>Điểm</th></tr>";
+
+    list.forEach((p,i)=>{
+        html += `<tr>
+            <td>${i+1}</td>
+            <td>${p.name}</td>
+            <td>${p.point}</td>
+        </tr>`;
+    });
+
+    html += "</table>";
+
+    document.getElementById("ranking").innerHTML = html;
+}
+
+
+// ===== RENDER MATCH =====
+function renderMatches(list){
+    let html = "";
+
+    list.forEach(m=>{
+        html += `
+        <div class="card">
+            <b>${m.round}</b><br>
+            ${m.t1} vs ${m.t2}
+            <br><br>
+            <input id="s1_${m.id}" value="${m.s1||""}">
+            -
+            <input id="s2_${m.id}" value="${m.s2||""}">
+            <button onclick="save('${m.id}')">💾 Lưu</button>
+        </div>
+        `;
+    });
+
+    document.getElementById("matches").innerHTML = html;
+}
+
+
+// ===== SAVE =====
+async function save(id){
+
+    const s1 = document.getElementById("s1_"+id).value;
+    const s2 = document.getElementById("s2_"+id).value;
+
+    if(s1===""||s2===""){
+        alert("Nhập đủ điểm");
+        return;
+    }
+
+    try{
+        await fetch(API,{
+            method:"POST",
+            body:JSON.stringify({
+                action:"saveScore",
+                id:id,
+                s1:s1,
+                s2:s2
+            })
+        });
+
+        alert("✅ Đã lưu");
+
+        loadData(); // reload realtime
+
+    }catch(e){
+        alert("❌ Lỗi lưu");
+    }
+}
+
+
+// INIT
+loadData();
+
+</script>
+
+</body>
+</html><!DOCTYPE html>
+<html lang="vi">
+<head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>🏓 Giải Đấu Pickleball - Nhập Tỷ Số</title>
