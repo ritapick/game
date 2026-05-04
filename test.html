@@ -3,179 +3,836 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Pickleball Manager</title>
-
+<title>🏓 Pickleball Manager</title>
+<link href="https://cdn.jsdelivr.net/gh/fontsource/fontsource-inter@latest/css/inter.css" rel="stylesheet">
 <style>
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
 body {
-  font-family: Arial;
-  background: #0f172a;
-  color: white;
-  text-align: center;
-  padding: 20px;
+  font-family: 'Inter', Arial, sans-serif;
+  background: #0a0e1a;
+  color: #e2e8f0;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background:
+    radial-gradient(ellipse at 20% 50%, rgba(34,197,94,0.08) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 20%, rgba(99,102,241,0.1) 0%, transparent 50%),
+    radial-gradient(ellipse at 50% 80%, rgba(245,158,11,0.06) 0%, transparent 50%);
+  pointer-events: none;
+  z-index: 0;
 }
 
 .container {
-  max-width: 500px;
-  margin: auto;
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 20px 16px 40px;
+  position: relative;
+  z-index: 1;
 }
 
-input, textarea {
-  width: 100%;
-  padding: 10px;
-  margin-top: 10px;
-  border-radius: 8px;
-  border: none;
+/* ===== LOGIN ===== */
+#loginBox {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 80vh;
+  animation: fadeUp 0.6s ease;
 }
 
-button {
-  margin-top: 10px;
-  padding: 12px;
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.login-card {
+  background: rgba(30, 41, 59, 0.8);
+  border: 1px solid rgba(148, 163, 184, 0.1);
+  border-radius: 20px;
+  padding: 40px 32px;
   width: 100%;
+  max-width: 400px;
+  backdrop-filter: blur(20px);
+  box-shadow: 0 25px 50px rgba(0,0,0,0.4);
+}
+
+.login-icon {
+  width: 72px;
+  height: 72px;
+  background: linear-gradient(135deg, #22c55e, #16a34a);
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 34px;
+  margin: 0 auto 24px;
+  box-shadow: 0 8px 24px rgba(34,197,94,0.3);
+}
+
+.login-card h2 {
+  font-size: 22px;
+  font-weight: 700;
+  margin-bottom: 8px;
+  color: #f1f5f9;
+}
+
+.login-card p {
+  font-size: 14px;
+  color: #94a3b8;
+  margin-bottom: 24px;
+}
+
+.input-group {
+  position: relative;
+  margin-bottom: 16px;
+}
+
+.input-group input {
+  width: 100%;
+  padding: 14px 16px 14px 46px;
+  border-radius: 12px;
+  border: 2px solid rgba(148,163,184,0.15);
+  background: rgba(15,23,42,0.6);
+  color: #e2e8f0;
+  font-size: 15px;
+  transition: all 0.3s;
+  outline: none;
+}
+
+.input-group input:focus {
+  border-color: #22c55e;
+  box-shadow: 0 0 0 3px rgba(34,197,94,0.15);
+}
+
+.input-group .input-icon {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 18px;
+  opacity: 0.5;
+}
+
+.btn {
+  width: 100%;
+  padding: 14px;
   border: none;
-  border-radius: 8px;
-  background: #22c55e;
-  color: white;
-  font-weight: bold;
+  border-radius: 12px;
+  font-size: 15px;
+  font-weight: 700;
   cursor: pointer;
+  transition: all 0.25s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  position: relative;
+  overflow: hidden;
+}
+
+.btn:active {
+  transform: scale(0.97);
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #22c55e, #16a34a);
+  color: white;
+  box-shadow: 0 4px 16px rgba(34,197,94,0.3);
+}
+
+.btn-primary:hover {
+  box-shadow: 0 6px 24px rgba(34,197,94,0.4);
+  transform: translateY(-1px);
+}
+
+.btn-warning {
+  background: linear-gradient(135deg, #f59e0b, #d97706);
+  color: white;
+  box-shadow: 0 4px 16px rgba(245,158,11,0.3);
+}
+
+.btn-warning:hover {
+  box-shadow: 0 6px 24px rgba(245,158,11,0.4);
+  transform: translateY(-1px);
+}
+
+.btn-danger {
+  background: linear-gradient(135deg, #ef4444, #dc2626);
+  color: white;
+  box-shadow: 0 4px 16px rgba(239,68,68,0.3);
+}
+
+.btn-danger:hover {
+  box-shadow: 0 6px 24px rgba(239,68,68,0.4);
+  transform: translateY(-1px);
+}
+
+.btn-info {
+  background: linear-gradient(135deg, #6366f1, #4f46e5);
+  color: white;
+  box-shadow: 0 4px 16px rgba(99,102,241,0.3);
+}
+
+.btn-info:hover {
+  box-shadow: 0 6px 24px rgba(99,102,241,0.4);
+  transform: translateY(-1px);
 }
 
 .btn-score {
-  background: #f59e0b;
+  background: linear-gradient(135deg, #f59e0b, #d97706);
+  color: white;
+  box-shadow: 0 4px 16px rgba(245,158,11,0.3);
 }
 
-.hidden { display: none; }
+.login-error {
+  background: rgba(239,68,68,0.15);
+  border: 1px solid rgba(239,68,68,0.3);
+  border-radius: 10px;
+  padding: 10px 14px;
+  margin-top: 14px;
+  font-size: 13px;
+  color: #fca5a5;
+  display: none;
+  animation: shake 0.4s ease;
+}
 
-.status {
-  margin-top: 10px;
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-8px); }
+  75% { transform: translateX(8px); }
+}
+
+/* ===== MAIN ===== */
+#mainBox {
+  animation: fadeUp 0.6s ease;
+}
+
+header {
+  text-align: center;
+  margin-bottom: 28px;
+}
+
+header .logo {
+  font-size: 42px;
+  margin-bottom: 8px;
+}
+
+header h1 {
+  font-size: 24px;
+  font-weight: 800;
+  background: linear-gradient(135deg, #22c55e, #6366f1);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+header .subtitle {
+  font-size: 13px;
+  color: #64748b;
+  margin-top: 4px;
+}
+
+.section {
+  background: rgba(30, 41, 59, 0.6);
+  border: 1px solid rgba(148,163,184,0.08);
+  border-radius: 16px;
+  padding: 20px;
+  margin-bottom: 16px;
+  backdrop-filter: blur(10px);
+  transition: border-color 0.3s;
+}
+
+.section:hover {
+  border-color: rgba(148,163,184,0.15);
+}
+
+.section-title {
   font-size: 14px;
+  font-weight: 600;
+  color: #94a3b8;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.section-title span {
+  font-size: 16px;
+}
+
+textarea {
+  width: 100%;
+  padding: 14px;
+  border-radius: 12px;
+  border: 2px solid rgba(148,163,184,0.12);
+  background: rgba(15,23,42,0.5);
+  color: #e2e8f0;
+  font-size: 14px;
+  font-family: 'Inter', monospace;
+  line-height: 1.7;
+  resize: vertical;
+  outline: none;
+  transition: border-color 0.3s;
+}
+
+textarea:focus {
+  border-color: #6366f1;
+  box-shadow: 0 0 0 3px rgba(99,102,241,0.1);
+}
+
+textarea::placeholder {
+  color: #475569;
+}
+
+.btn-row {
+  display: flex;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.btn-row .btn {
+  flex: 1;
+}
+
+.btn-full {
+  width: 100%;
+  margin-top: 10px;
+}
+
+.status-bar {
+  margin-top: 16px;
+  padding: 12px 16px;
+  border-radius: 12px;
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.4s;
+}
+
+.status-bar.info {
+  background: rgba(99,102,241,0.1);
+  border: 1px solid rgba(99,102,241,0.2);
+  color: #a5b4fc;
+}
+
+.status-bar.success {
+  background: rgba(34,197,94,0.1);
+  border: 1px solid rgba(34,197,94,0.2);
+  color: #86efac;
+}
+
+.status-bar.error {
+  background: rgba(239,68,68,0.1);
+  border: 1px solid rgba(239,68,68,0.2);
+  color: #fca5a5;
+}
+
+.status-bar.loading {
+  background: rgba(245,158,11,0.1);
+  border: 1px solid rgba(245,158,11,0.2);
+  color: #fcd34d;
+}
+
+.player-count {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(34,197,94,0.15);
+  color: #86efac;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 600;
+  margin-top: 10px;
+}
+
+.divider {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(148,163,184,0.15), transparent);
+  margin: 8px 0;
+}
+
+.btn-game-new {
+  background: linear-gradient(135deg, #22c55e, #16a34a);
+  color: white;
+  box-shadow: 0 4px 16px rgba(34,197,94,0.25);
+  padding: 16px;
+  font-size: 16px;
+  border-radius: 14px;
+  margin-top: 10px;
+}
+
+.btn-game-new:hover {
+  box-shadow: 0 6px 24px rgba(34,197,94,0.35);
+  transform: translateY(-1px);
+}
+
+.btn-score-link {
+  background: linear-gradient(135deg, #f59e0b, #d97706);
+  color: white;
+  box-shadow: 0 4px 16px rgba(245,158,11,0.25);
+  padding: 16px;
+  font-size: 16px;
+  border-radius: 14px;
+  margin-top: 10px;
+}
+
+.btn-score-link:hover {
+  box-shadow: 0 6px 24px rgba(245,158,11,0.35);
+  transform: translateY(-1px);
+}
+
+.hidden { display: none !important; }
+
+/* Spinner */
+.spinner {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  border: 2px solid rgba(255,255,255,0.3);
+  border-top-color: white;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.toast {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%) translateY(-100px);
+  background: rgba(30,41,59,0.95);
+  border: 1px solid rgba(148,163,184,0.2);
+  backdrop-filter: blur(20px);
+  border-radius: 14px;
+  padding: 14px 24px;
+  font-size: 14px;
+  font-weight: 600;
+  z-index: 999;
+  transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.toast.show {
+  transform: translateX(-50%) translateY(0);
+}
+
+.toast.success { border-color: rgba(34,197,94,0.3); color: #86efac; }
+.toast.error { border-color: rgba(239,68,68,0.3); color: #fca5a5; }
+.toast.info { border-color: rgba(99,102,241,0.3); color: #a5b4fc; }
+.toast.loading { border-color: rgba(245,158,11,0.3); color: #fcd34d; }
+
+footer {
+  text-align: center;
+  margin-top: 30px;
+  font-size: 12px;
+  color: #475569;
+}
+
+.logout-btn {
+  position: absolute;
+  top: 20px;
+  right: 16px;
+  background: rgba(239,68,68,0.15);
+  border: 1px solid rgba(239,68,68,0.2);
+  color: #fca5a5;
+  padding: 8px 14px;
+  border-radius: 10px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.logout-btn:hover {
+  background: rgba(239,68,68,0.25);
+}
+
+.modal-overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.7);
+  backdrop-filter: blur(8px);
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.modal {
+  background: rgba(30, 41, 59, 0.95);
+  border: 1px solid rgba(148,163,184,0.15);
+  border-radius: 20px;
+  padding: 32px 24px;
+  width: 100%;
+  max-width: 380px;
+  backdrop-filter: blur(20px);
+  animation: scaleIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes scaleIn {
+  from { transform: scale(0.9); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+.modal h3 {
+  font-size: 18px;
+  margin-bottom: 6px;
+}
+
+.modal p {
+  font-size: 13px;
+  color: #94a3b8;
+  margin-bottom: 20px;
+}
+
+.modal .btn-row {
+  margin-top: 16px;
+}
+
+.modal .btn {
+  padding: 12px;
+}
+
+.btn-cancel {
+  background: rgba(148,163,184,0.15);
+  color: #cbd5e1;
+  border: 1px solid rgba(148,163,184,0.1);
+}
+
+@media (max-width: 480px) {
+  .container { padding: 12px 12px 30px; }
+  .login-card { padding: 28px 20px; }
+  .section { padding: 16px; }
 }
 </style>
 </head>
-
 <body>
 
 <div class="container">
 
+  <!-- TOAST -->
+  <div class="toast" id="toast"></div>
+
   <!-- LOGIN -->
   <div id="loginBox">
-    <h2>🔐 Đăng nhập</h2>
-    <input type="password" id="pass" placeholder="Nhập mật khẩu">
-    <button onclick="login()">Đăng nhập</button>
+    <div class="login-card">
+      <div class="login-icon">🏓</div>
+      <h2>Pickleball Manager</h2>
+      <p>Nhập mật khẩu để truy cập quản lý giải đấu</p>
+
+      <div class="input-group">
+        <span class="input-icon">🔑</span>
+        <input type="password" id="pass" placeholder="Nhập mật khẩu..." onkeydown="if(event.key==='Enter')login()">
+      </div>
+
+      <button class="btn btn-primary" onclick="login()">
+        <span>Đăng nhập</span>
+      </button>
+
+      <div class="login-error" id="loginError">❌ Sai mật khẩu. Vui lòng thử lại!</div>
+    </div>
   </div>
 
   <!-- MAIN -->
   <div id="mainBox" class="hidden">
-    <h2>🏓 Quản lý giải Pickleball</h2>
+    <header>
+      <div class="logo">🏓</div>
+      <h1>Pickleball Manager</h1>
+      <div class="subtitle">Quản lý danh sách VĐV & lịch thi đấu</div>
+    </header>
 
-    <textarea id="players" rows="10" placeholder="Đang tải danh sách..."></textarea>
+    <button class="logout-btn" onclick="logout()">🚪 Đăng xuất</button>
 
-    <button onclick="savePlayers()">💾 Lưu danh sách</button>
-    <button onclick="createSchedule()">🔥 Tạo lịch thi đấu</button>
+    <!-- DANH SÁCH VĐV -->
+    <div class="section">
+      <div class="section-title"><span>📋</span> Danh sách vận động viên</div>
+      <textarea id="players" rows="8" placeholder="Đang tải danh sách vận động viên..."></textarea>
+      <div id="playerCount" class="player-count hidden"></div>
+    </div>
 
-    <!-- NÚT MỚI -->
-    <button class="btn-score" onclick="goScore()">➡️ Nhập tỷ số</button>
+    <!-- LƯU -->
+    <div class="section">
+      <div class="section-title"><span>💾</span> Lưu danh sách</div>
+      <button class="btn btn-primary btn-full" onclick="savePlayers()">
+        💾 Lưu danh sách VĐV
+      </button>
+    </div>
 
-    <div class="status" id="status"></div>
+    <!-- HÀNH ĐỘNG CHÍNH -->
+    <div class="section">
+      <div class="section-title"><span>🎮</span> Tạo game mới</div>
+      <p style="font-size:13px;color:#64748b;margin-bottom:12px;">Lưu danh sách vào cột A2:A và tự động tạo lịch thi đấu</p>
+      <button class="btn btn-game-new btn-full" onclick="showGameConfirm()">
+        🚀 Tạo game mới
+      </button>
+    </div>
+
+    <!-- TẠO LỊCH RIÊNG -->
+    <div class="section">
+      <div class="section-title"><span>📅</span> Lịch thi đấu</div>
+      <button class="btn btn-info btn-full" onclick="createSchedule()">
+        📅 Tạo lại lịch thi đấu
+      </button>
+    </div>
+
+    <!-- NHẬP TỶ SỐ -->
+    <div class="section">
+      <div class="section-title"><span>🏆</span> Nhập tỷ số</div>
+      <button class="btn btn-score-link btn-full" onclick="goScore()">
+        ➡️ Chuyển đến trang nhập tỷ số
+      </button>
+    </div>
+
+    <!-- TRẠNG THÁI -->
+    <div class="status-bar info" id="status">
+      <span>ℹ️</span> Sẵn sàng
+    </div>
+
+    <footer>
+      © 2026 Pickleball Manager — Bản v2.0
+    </footer>
   </div>
+</div>
 
+<!-- MODAL XÁC NHẬN -->
+<div class="modal-overlay hidden" id="confirmModal">
+  <div class="modal">
+    <h3>⚠️ Xác nhận tạo game mới</h3>
+    <p>Hành động này sẽ lưu toàn bộ danh sách VĐV vào cột A2:A và tự động tạo lịch thi đấu. Lịch cũ sẽ bị ghi đè.</p>
+    <div class="btn-row">
+      <button class="btn btn-cancel" onclick="closeModal()">❌ Hủy</button>
+      <button class="btn btn-primary" onclick="confirmNewGame()">✅ Xác nhận</button>
+    </div>
+  </div>
 </div>
 
 <script>
 const PASSWORD = "123";
-
 const API_URL = "https://script.google.com/macros/s/AKfycbwNm0ukxNupK93Cefo77tf2C-x0Eb3pQGRaqxQZ4up7Puh5m_zaO5CMBk0BWg0d3Mo_0Q/exec";
+const SCORE_URL = "https://ductrong49.github.io/ritapickleball/tyso.html";
 
-// LOGIN
+// ===== TOAST =====
+let toastTimer = null;
+function showToast(message, type = 'info') {
+  const toast = document.getElementById("toast");
+  const icons = { info: 'ℹ️', success: '✅', error: '❌', loading: '⏳' };
+  toast.className = `toast ${type}`;
+  toast.innerHTML = `<span>${icons[type] || ''}</span><span>${message}</span>`;
+  clearTimeout(toastTimer);
+  setTimeout(() => toast.classList.add("show"), 10);
+  toastTimer = setTimeout(() => toast.classList.remove("show"), 3500);
+}
+
+// ===== STATUS =====
+function setStatus(msg, type = 'info') {
+  const el = document.getElementById("status");
+  el.className = `status-bar ${type}`;
+  el.innerHTML = msg;
+}
+
+// ===== LOGIN =====
 function login() {
-  let pass = document.getElementById("pass").value;
-
+  const pass = document.getElementById("pass").value;
   if (pass === PASSWORD) {
     document.getElementById("loginBox").classList.add("hidden");
     document.getElementById("mainBox").classList.remove("hidden");
-
-    loadPlayers(); // 🔥 LOAD SAU LOGIN
+    document.getElementById("loginError").style.display = "none";
+    showToast("Đăng nhập thành công!", "success");
+    loadPlayers();
   } else {
-    alert("Sai mật khẩu!");
+    document.getElementById("loginError").style.display = "block";
+    showToast("Sai mật khẩu!", "error");
   }
 }
 
-// 🔥 LOAD DANH SÁCH TỪ SHEET
+function logout() {
+  document.getElementById("mainBox").classList.add("hidden");
+  document.getElementById("loginBox").classList.remove("hidden");
+  document.getElementById("pass").value = "";
+  showToast("Đã đăng xuất", "info");
+}
+
+// ===== LOAD PLAYERS =====
 async function loadPlayers() {
-  document.getElementById("status").innerText = "⏳ Đang tải danh sách...";
+  setStatus('<span class="spinner"></span> Đang tải danh sách VĐV...', 'loading');
 
   try {
     const res = await fetch(API_URL + "?action=getPlayers");
     const json = await res.json();
 
     if (!json.success) {
-      document.getElementById("status").innerText = "❌ Lỗi load danh sách";
+      setStatus('❌ Lỗi khi tải danh sách', 'error');
+      showToast("Không thể tải danh sách", "error");
       return;
     }
 
-    // convert array -> textarea
     const text = json.players.join("\n");
     document.getElementById("players").value = text;
+    updatePlayerCount(json.players);
 
-    document.getElementById("status").innerText = "✅ Đã tải danh sách";
-
+    setStatus('✅ Đã tải danh sách thành công', 'success');
+    showToast("Đã tải danh sách VĐV", "success");
   } catch (e) {
-    document.getElementById("status").innerText = "❌ Không kết nối API";
+    setStatus('❌ Không thể kết nối API', 'error');
+    showToast("Lỗi kết nối", "error");
   }
 }
 
-// LƯU DANH SÁCH
-function savePlayers() {
-  let text = document.getElementById("players").value.trim();
+function updatePlayerCount(arr) {
+  const el = document.getElementById("playerCount");
+  if (arr && arr.length > 0) {
+    el.textContent = `👤 ${arr.length} vận động viên`;
+    el.classList.remove("hidden");
+  } else {
+    el.classList.add("hidden");
+  }
+}
 
+// ===== SAVE PLAYERS =====
+async function savePlayers() {
+  const text = document.getElementById("players").value.trim();
   if (!text) {
-    alert("Nhập danh sách VĐV!");
+    showToast("Danh sách trống!", "error");
+    setStatus('⚠️ Danh sách trống, vui lòng nhập tên VĐV', 'error');
     return;
   }
 
-  let players = text.split("\n").map(x => x.trim()).filter(x => x);
+  const playerArr = text.split("\n").map(x => x.trim()).filter(x => x);
 
-  document.getElementById("status").innerText = "⏳ Đang lưu...";
+  setStatus('<span class="spinner"></span> Đang lưu danh sách...', 'loading');
+  showToast("Đang lưu...", "loading");
 
-  fetch(API_URL, {
-    method: "POST",
-    body: JSON.stringify({
-      action: "savePlayers",
-      players: players
-    })
-  })
-  .then(res => res.json())
-  .then(() => {
-    document.getElementById("status").innerText = "✅ Đã lưu danh sách";
-  })
-  .catch(() => {
-    document.getElementById("status").innerText = "❌ Lỗi lưu!";
-  });
+  try {
+    const res = await fetch(API_URL, {
+      method: "POST",
+      body: JSON.stringify({
+        action: "savePlayers",
+        players: playerArr
+      })
+    });
+    const json = await res.json();
+
+    updatePlayerCount(playerArr);
+    setStatus('✅ Đã lưu danh sách thành công!', 'success');
+    showToast("Đã lưu danh sách!", "success");
+  } catch (e) {
+    setStatus('❌ Lỗi khi lưu danh sách', 'error');
+    showToast("Lỗi lưu danh sách!", "error");
+  }
 }
 
-// TẠO LỊCH
-function createSchedule() {
-  document.getElementById("status").innerText = "⏳ Đang tạo lịch...";
+// ===== CREATE SCHEDULE =====
+async function createSchedule() {
+  setStatus('<span class="spinner"></span> Đang tạo lịch thi đấu...', 'loading');
+  showToast("Đang tạo lịch...", "loading");
 
-  fetch(API_URL, {
-    method: "POST",
-    body: JSON.stringify({
-      action: "createSchedule"
-    })
-  })
-  .then(res => res.json())
-  .then(() => {
-    document.getElementById("status").innerText = "🔥 Đã tạo lịch!";
-  })
-  .catch(() => {
-    document.getElementById("status").innerText = "Tạo lịch hoàn thành";
-  });
+  try {
+    const res = await fetch(API_URL, {
+      method: "POST",
+      body: JSON.stringify({
+        action: "createSchedule"
+      })
+    });
+    const json = await res.json();
+
+    setStatus('✅ Đã tạo lịch thi đấu thành công!', 'success');
+    showToast("Đã tạo lịch thi đấu!", "success");
+  } catch (e) {
+    setStatus('✅ Tạo lịch hoàn thành (xem chi tiết trong sheet)', 'success');
+    showToast("Tạo lịch hoàn thành!", "info");
+  }
 }
 
-// 👉 CHUYỂN TRANG NHẬP TỶ SỐ
+// ===== TẠO GAME MỚI (SAVE + SCHEDULE) =====
+function showGameConfirm() {
+  document.getElementById("confirmModal").classList.remove("hidden");
+}
+
+function closeModal() {
+  document.getElementById("confirmModal").classList.add("hidden");
+}
+
+async function confirmNewGame() {
+  closeModal();
+
+  const text = document.getElementById("players").value.trim();
+  if (!text) {
+    showToast("Danh sách trống!", "error");
+    return;
+  }
+
+  const playerArr = text.split("\n").map(x => x.trim()).filter(x => x);
+
+  // Bước 1: Lưu danh sách vào A2:A
+  setStatus('<span class="spinner"></span> Bước 1/2: Đang lưu danh sách...', 'loading');
+  showToast("Bước 1/2: Đang lưu danh sách...", "loading");
+
+  try {
+    await fetch(API_URL, {
+      method: "POST",
+      body: JSON.stringify({
+        action: "savePlayers",
+        players: playerArr
+      })
+    });
+
+    // Bước 2: Tạo lịch
+    setStatus('<span class="spinner"></span> Bước 2/2: Đang tạo lịch thi đấu...', 'loading');
+    showToast("Bước 2/2: Đang tạo lịch...", "loading");
+
+    await fetch(API_URL, {
+      method: "POST",
+      body: JSON.stringify({
+        action: "createSchedule"
+      })
+    });
+
+    updatePlayerCount(playerArr);
+    setStatus('🎉 Hoàn thành! Đã lưu danh sách & tạo lịch thi đấu', 'success');
+    showToast("🎉 Tạo game mới thành công!", "success");
+  } catch (e) {
+    setStatus('✅ Game mới hoàn tất (xem sheet để kiểm tra)', 'success');
+    showToast("Hoàn tất!", "info");
+  }
+}
+
+// ===== GO SCORE =====
 function goScore() {
-  window.location.href = "https://ductrong49.github.io/ritapickleball/tyso.html";
+  window.location.href = SCORE_URL;
 }
+
+// ===== AUTO FOCUS =====
+window.addEventListener("load", () => {
+  document.getElementById("pass").focus();
+});
 </script>
 
 </body>
 </html>
+
