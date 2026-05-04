@@ -1,174 +1,6 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>🏓 Pickleball PRO</title>
-
-<style>
-body{
-    font-family: Arial;
-    background:#0b0f19;
-    color:#fff;
-    padding:10px;
-    max-width:600px;
-    margin:auto;
-}
-
-h1{text-align:center;}
-
-.card{
-    background:#141a2b;
-    border-radius:10px;
-    padding:10px;
-    margin-bottom:10px;
-}
-
-input{
-    width:50px;
-    font-size:20px;
-    text-align:center;
-}
-
-button{
-    padding:8px;
-    margin-top:5px;
-    width:100%;
-    background:#ff6b35;
-    border:none;
-    color:#000;
-    font-weight:bold;
-    border-radius:6px;
-}
-
-.saved{background:#22c55e;color:#fff;}
-
-table{
-    width:100%;
-    border-collapse:collapse;
-}
-
-td,th{
-    border-bottom:1px solid #333;
-    padding:6px;
-    text-align:center;
-}
-
-</style>
-</head>
-
-<body>
-
-<h1>🏓 PICKLEBALL PRO</h1>
-
-<h2>🏆 Bảng xếp hạng</h2>
-<div id="ranking">Loading...</div>
-
-<h2>🎯 Nhập tỷ số</h2>
-<div id="matches">Loading...</div>
-
-<script>
-
-const API = "https://script.google.com/macros/s/AKfycbzyPxHKhnzwx8pqmOWSvm5KeieMDob58DrGRR5dTlxarDXLJ5ZC0qmOaW-b_WeqnPAqsA/exec";
-
-
-// ===== LOAD DATA =====
-async function loadData(){
-    try{
-        const res = await fetch(API);
-        const data = await res.json();
-
-        renderRanking(data.ranking);
-        renderMatches(data.matches);
-
-    }catch(e){
-        document.body.innerHTML = "❌ Lỗi load API";
-        console.error(e);
-    }
-}
-
-
-// ===== RENDER RANK =====
-function renderRanking(list){
-    let html = "<table><tr><th>#</th><th>Tên</th><th>Điểm</th></tr>";
-
-    list.forEach((p,i)=>{
-        html += `<tr>
-            <td>${i+1}</td>
-            <td>${p.name}</td>
-            <td>${p.point}</td>
-        </tr>`;
-    });
-
-    html += "</table>";
-
-    document.getElementById("ranking").innerHTML = html;
-}
-
-
-// ===== RENDER MATCH =====
-function renderMatches(list){
-    let html = "";
-
-    list.forEach(m=>{
-        html += `
-        <div class="card">
-            <b>${m.round}</b><br>
-            ${m.t1} vs ${m.t2}
-            <br><br>
-            <input id="s1_${m.id}" value="${m.s1||""}">
-            -
-            <input id="s2_${m.id}" value="${m.s2||""}">
-            <button onclick="save('${m.id}')">💾 Lưu</button>
-        </div>
-        `;
-    });
-
-    document.getElementById("matches").innerHTML = html;
-}
-
-
-// ===== SAVE =====
-async function save(id){
-
-    const s1 = document.getElementById("s1_"+id).value;
-    const s2 = document.getElementById("s2_"+id).value;
-
-    if(s1===""||s2===""){
-        alert("Nhập đủ điểm");
-        return;
-    }
-
-    try{
-        await fetch(API,{
-            method:"POST",
-            body:JSON.stringify({
-                action:"saveScore",
-                id:id,
-                s1:s1,
-                s2:s2
-            })
-        });
-
-        alert("✅ Đã lưu");
-
-        loadData(); // reload realtime
-
-    }catch(e){
-        alert("❌ Lỗi lưu");
-    }
-}
-
-
-// INIT
-loadData();
-
-</script>
-
-</body>
-</html><!DOCTYPE html>
-<html lang="vi">
-<head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>🏓 Giải Đấu Pickleball - Nhập Tỷ Số</title>
@@ -711,7 +543,7 @@ loadData();
 <script>
     const SHEET_ID = '1GUr4TFhq_Ha65en9vthhtii35-RWg28qeEcLiVJaVek';
     const BASE = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq`;
-    const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyxsOOLV8wZe-4-T-7YhYKaB-FW9kyY-E8jVh9HQBXtjV93xOlh3neYN8QcPh2RpzU0Kg/exec';
+    const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzyPxHKhnzwx8pqmOWSvm5KeieMDob58DrGRR5dTlxarDXLJ5ZC0qmOaW-b_WeqnPAqsA/exec';
     const STORAGE_KEY = 'pickleball_scores_' + SHEET_ID;
 
     let savedScores = {};
@@ -808,7 +640,7 @@ loadData();
             const badgeTxt = isSaved ? 'Đã lưu ✓' : 'Chờ nhập';
             const btnCls = isSaved ? 'mc-save-btn btn-saved' : 'mc-save-btn';
             const btnIcon = isSaved ? '✓' : '💾';
-            const btnTxt = isSaved ? 'Đã lưu lên Sheet' : 'Lưu tỷ số';
+            const btnTxt = isSaved ? 'Đã lưu' : 'Lưu tỷ số';
 
             h += `<div class="match-card ${cardCls}" style="animation-delay:${delay}s" id="${matchId}">`;
             h += `<div class="mc-head"><span class="mc-round">${round || 'Trận ' + count}</span><span class="${badgeCls}" id="status-${matchId}">${badgeTxt}</span></div>`;
@@ -950,12 +782,12 @@ loadData();
         cardEl.classList.add('syncing');
 
         try {
-            const response = await fetch(APPS_SCRIPT_URL, {
+            await fetch(APPS_SCRIPT_URL, {
                 method: 'POST',
                 mode: 'no-cors',
                 headers: { 'Content-Type': 'text/plain' },
                 body: JSON.stringify({
-                    action: 'updateScore',
+                    action: 'saveScore',
                     matchId: matchId,
                     rowIndex: match.rowIndex,
                     score1: n1,
@@ -979,10 +811,13 @@ loadData();
             }
 
             sbtn.className = 'mc-save-btn btn-saved pulse';
-            sbtn.innerHTML = '<span class="btn-icon">✓</span><span>Đã lưu lên Sheet</span>';
+            sbtn.innerHTML = '<span class="btn-icon">✓</span><span>Đã lưu</span>';
             setTimeout(() => { if (sbtn) sbtn.classList.remove('pulse'); }, 1500);
 
             showToast(`✅ Đã lưu ${n1} - ${n2} lên Sheet`, 'success');
+
+            // Reload data after short delay
+            setTimeout(() => loadData(), 1000);
         } catch(e) {
             console.error('Save error:', e);
             cardEl.classList.remove('syncing');
@@ -1003,8 +838,7 @@ loadData();
         setTimeout(() => { toast.classList.remove('show'); }, 2500);
     }
 
-    async function init() {
-        loadSavedScores();
+    async function loadData() {
         try {
             const [rankRes, matchRes] = await Promise.all([
                 getSheet('danhsachvdv', 'E1:I25'),
@@ -1015,9 +849,16 @@ loadData();
         } catch (e) {
             console.error(e);
             const errMsg = `<div class="err-box"><h3>⚠️ Lỗi tải dữ liệu</h3><p>${e.message}</p><p style="margin-top:6px;font-size:0.72rem;">Kiểm tra kết nối mạng &amp; chia sẻ Google Sheet công khai.</p></div>`;
-            document.getElementById('rank-area').innerHTML = errMsg;
-            document.getElementById('match-area').innerHTML = errMsg;
+            if (!document.getElementById('rank-area').querySelector('.err-box')) {
+                document.getElementById('rank-area').innerHTML = errMsg;
+                document.getElementById('match-area').innerHTML = errMsg;
+            }
         }
+    }
+
+    async function init() {
+        loadSavedScores();
+        await loadData();
     }
 
     init();
