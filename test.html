@@ -268,6 +268,12 @@
             border: 1px solid rgba(34,197,94,0.25);
         }
 
+        .mc-status.pending-badge {
+            background: rgba(255,209,102,0.12);
+            color: var(--accent);
+            border: 1px solid rgba(255,209,102,0.25);
+        }
+
         .mc-body {
             padding: 12px 10px 10px;
         }
@@ -387,15 +393,62 @@
             font-size: 0.9rem;
         }
 
-        .mc-check {
-            font-size: 0.75rem;
-            color: var(--green);
-            display: none;
+        /* Per-match save button */
+        .mc-save-row {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding: 6px 10px 10px;
+            gap: 8px;
+            border-top: 1px solid var(--border);
+            background: rgba(0,0,0,0.15);
         }
 
-        .mc-check.show { display: block; }
+        .mc-save-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            padding: 8px 18px;
+            font-family: 'Oswald', sans-serif;
+            font-size: 0.82rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #000;
+            background: linear-gradient(90deg, var(--primary), var(--accent));
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 2px 10px var(--primary-glow);
+        }
 
-        /* Save Button */
+        .mc-save-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 16px rgba(255,107,53,0.45);
+        }
+
+        .mc-save-btn:active {
+            transform: translateY(0);
+        }
+
+        .mc-save-btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .mc-save-btn.btn-saved {
+            background: linear-gradient(90deg, var(--green), #10b981);
+            box-shadow: 0 2px 10px rgba(34,197,94,0.3);
+            color: #fff;
+        }
+
+        .mc-save-btn .btn-icon { font-size: 1rem; }
+
+        /* Save All Bar */
         .save-bar {
             position: fixed;
             bottom: 0;
@@ -412,13 +465,13 @@
             gap: 12px;
         }
 
-        .save-btn {
+        .save-all-btn {
             display: inline-flex;
             align-items: center;
             gap: 8px;
             padding: 12px 32px;
             font-family: 'Oswald', sans-serif;
-            font-size: 1.1rem;
+            font-size: 1.05rem;
             font-weight: 600;
             text-transform: uppercase;
             letter-spacing: 1.5px;
@@ -431,22 +484,22 @@
             box-shadow: 0 4px 20px var(--primary-glow);
         }
 
-        .save-btn:hover {
+        .save-all-btn:hover {
             transform: translateY(-2px);
             box-shadow: 0 6px 28px rgba(255,107,53,0.5);
         }
 
-        .save-btn:active {
+        .save-all-btn:active {
             transform: translateY(0);
         }
 
-        .save-btn:disabled {
+        .save-all-btn:disabled {
             opacity: 0.5;
             cursor: not-allowed;
             transform: none;
         }
 
-        .save-btn .icon { font-size: 1.2rem; }
+        .save-all-btn .icon { font-size: 1.2rem; }
 
         .stats-text {
             font-size: 0.75rem;
@@ -492,6 +545,17 @@
             color: #000;
         }
 
+        /* Pulse animation for save button */
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(34,197,94,0.4); }
+            70% { box-shadow: 0 0 0 10px rgba(34,197,94,0); }
+            100% { box-shadow: 0 0 0 0 rgba(34,197,94,0); }
+        }
+
+        .mc-save-btn.pulse {
+            animation: pulse 1.5s ease 1;
+        }
+
         /* Loader */
         .loader {
             display: flex;
@@ -534,6 +598,7 @@
             .mc-team-names { font-size: 0.72rem; }
             .mc-score-inputs input[type="number"] { width: 38px; height: 30px; font-size: 1.05rem; }
             .mc-vs { min-width: 88px; }
+            .mc-save-btn { padding: 7px 14px; font-size: 0.75rem; }
         }
     </style>
 </head>
@@ -570,12 +635,12 @@
     </section>
 </div>
 
-<!-- Save Bar -->
+<!-- Save All Bar -->
 <div class="save-bar">
-    <span class="stats-text">Đã nhập: <strong id="filled-count">0</strong>/<strong id="total-count">0</strong></span>
-    <button class="save-btn" id="save-btn" onclick="saveScores()">
+    <span class="stats-text">Đã nhập: <strong id="filled-count">0</strong>/<strong id="total-count">0</strong> &nbsp;|&nbsp; Đã lưu: <strong id="saved-count">0</strong></span>
+    <button class="save-all-btn" id="save-all-btn" onclick="saveAllScores()">
         <span class="icon">💾</span>
-        <span>Lưu tỷ số</span>
+        <span>Lưu tất cả</span>
     </button>
 </div>
 
@@ -653,7 +718,6 @@
             return;
         }
 
-        // Columns: A=0, B=1(t1p1), C=2(t1p2), D=3(t2p1), E=4(t2p2), F=5(score1), G=6(score2)
         matchData = [];
         let count = 0;
         let h = '<div class="match-grid">';
@@ -676,29 +740,42 @@
 
             const saved = savedScores[matchId];
             const isSaved = saved && saved.s1 !== '' && saved.s2 !== '';
-            const cls = isSaved ? 'saved' : '';
+            const cardCls = isSaved ? 'saved' : '';
             const delay = Math.min(idx * 0.03, 1.2);
             const savedInput1 = isSaved ? 'saved-input' : '';
             const savedInput2 = isSaved ? 'saved-input' : '';
-            const savedBadge = isSaved ? 'mc-status saved-badge' : '';
-            const savedText = isSaved ? 'Đã lưu' : 'Chờ nhập';
+            const statusBadgeCls = isSaved ? 'mc-status saved-badge' : 'mc-status pending-badge';
+            const statusText = isSaved ? 'Đã lưu ✓' : 'Chờ nhập';
+            const saveBtnCls = isSaved ? 'mc-save-btn btn-saved' : 'mc-save-btn';
+            const saveBtnIcon = isSaved ? '✓' : '💾';
+            const saveBtnText = isSaved ? 'Đã lưu' : 'Lưu';
 
-            h += `<div class="match-card ${cls}" style="animation-delay:${delay}s" id="${matchId}">`;
-            h += `<div class="mc-head"><span class="mc-round">${round || 'Trận ' + count}</span><span class="${savedBadge}" id="status-${matchId}">${savedText}</span></div>`;
+            h += `<div class="match-card ${cardCls}" style="animation-delay:${delay}s" id="${matchId}">`;
+            h += `<div class="mc-head"><span class="mc-round">${round || 'Trận ' + count}</span><span class="${statusBadgeCls}" id="status-${matchId}">${statusText}</span></div>`;
             h += `<div class="mc-body"><div class="mc-teams">`;
 
             h += `<div class="mc-team"><span class="mc-team-label">Đội 1</span><div class="mc-team-names">${t1p1}<span class="amp">&</span>${t1p2}</div></div>`;
 
             h += `<div class="mc-vs"><div class="vs-circle">VS</div>`;
             h += `<div class="mc-score-inputs">`;
-            h += `<input type="number" class="s1-input ${savedInput1}" id="s1-${matchId}" placeholder="-" min="0" inputmode="numeric" onchange="onScoreChange('${matchId}')" oninput="onScoreChange('${matchId}')">`;
+            h += `<input type="number" class="s1-input ${savedInput1}" id="s1-${matchId}" placeholder="-" min="0" inputmode="numeric" oninput="onScoreInput('${matchId}')" onchange="onScoreInput('${matchId}')">`;
             h += `<span class="dash">-</span>`;
-            h += `<input type="number" class="s2-input ${savedInput2}" id="s2-${matchId}" placeholder="-" min="0" inputmode="numeric" onchange="onScoreChange('${matchId}')" oninput="onScoreChange('${matchId}')">`;
+            h += `<input type="number" class="s2-input ${savedInput2}" id="s2-${matchId}" placeholder="-" min="0" inputmode="numeric" oninput="onScoreInput('${matchId}')" onchange="onScoreInput('${matchId}')">`;
             h += `</div></div>`;
 
             h += `<div class="mc-team"><span class="mc-team-label">Đội 2</span><div class="mc-team-names">${t2p1}<span class="amp">&</span>${t2p2}</div></div>`;
 
-            h += `</div></div></div>`;
+            h += `</div></div>`;
+
+            // Per-match save button row
+            h += `<div class="mc-save-row">`;
+            h += `<button class="${saveBtnCls}" id="sbtn-${matchId}" onclick="saveSingleScore('${matchId}')">`;
+            h += `<span class="btn-icon">${saveBtnIcon}</span>`;
+            h += `<span>${saveBtnText}</span>`;
+            h += `</button>`;
+            h += `</div>`;
+
+            h += `</div>`;
         });
 
         h += '</div>';
@@ -722,17 +799,119 @@
         });
 
         updateFilledCount();
+        updateSavedCount();
     }
 
-    function onScoreChange(matchId) {
+    function onScoreInput(matchId) {
         const el1 = document.getElementById(`s1-${matchId}`);
         const el2 = document.getElementById(`s2-${matchId}`);
         
-        // Remove error state
+        // Remove error state when user types
         if (el1) el1.classList.remove('error-input');
         if (el2) el2.classList.remove('error-input');
 
+        // If user edits a saved score, reset the saved state
+        if (savedScores[matchId]) {
+            const v1 = el1 ? el1.value.trim() : '';
+            const v2 = el2 ? el2.value.trim() : '';
+            const saved = savedScores[matchId];
+            if (v1 !== String(saved.s1) || v2 !== String(saved.s2)) {
+                resetMatchState(matchId, false);
+            }
+        }
+
         updateFilledCount();
+    }
+
+    function resetMatchState(matchId, keepValues) {
+        delete savedScores[matchId];
+        try { localStorage.setItem(STORAGE_KEY, JSON.stringify(savedScores)); } catch(e) {}
+
+        const el1 = document.getElementById(`s1-${matchId}`);
+        const el2 = document.getElementById(`s2-${matchId}`);
+        const statusEl = document.getElementById(`status-${matchId}`);
+        const cardEl = document.getElementById(matchId);
+        const sbtn = document.getElementById(`sbtn-${matchId}`);
+
+        if (el1) el1.classList.remove('saved-input', 'error-input');
+        if (el2) el2.classList.remove('saved-input', 'error-input');
+        if (cardEl) cardEl.classList.remove('saved');
+
+        if (statusEl) {
+            statusEl.className = 'mc-status pending-badge';
+            statusEl.textContent = 'Chờ nhập';
+        }
+
+        if (sbtn) {
+            sbtn.className = 'mc-save-btn';
+            sbtn.innerHTML = '<span class="btn-icon">💾</span><span>Lưu</span>';
+        }
+
+        updateSavedCount();
+    }
+
+    function saveSingleScore(matchId) {
+        const el1 = document.getElementById(`s1-${matchId}`);
+        const el2 = document.getElementById(`s2-${matchId}`);
+        const statusEl = document.getElementById(`status-${matchId}`);
+        const cardEl = document.getElementById(matchId);
+        const sbtn = document.getElementById(`sbtn-${matchId}`);
+
+        if (!el1 || !el2) return;
+
+        const v1 = el1.value.trim();
+        const v2 = el2.value.trim();
+
+        // Remove previous states
+        el1.classList.remove('saved-input', 'error-input');
+        el2.classList.remove('saved-input', 'error-input');
+
+        if (v1 === '' && v2 === '') {
+            showToast('⚠️ Vui lòng nhập tỷ số', 'warning');
+            return;
+        }
+
+        if (v1 === '' || v2 === '') {
+            showToast('⚠️ Vui lòng nhập đủ 2 tỷ số', 'warning');
+            return;
+        }
+
+        const n1 = parseInt(v1);
+        const n2 = parseInt(v2);
+        if (isNaN(n1) || isNaN(n2) || n1 < 0 || n2 < 0) {
+            el1.classList.add('error-input');
+            el2.classList.add('error-input');
+            showToast('⚠️ Tỷ số không hợp lệ', 'warning');
+            return;
+        }
+
+        // Save (overwrite if already saved)
+        savedScores[matchId] = { s1: n1, s2: n2 };
+        try {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(savedScores));
+        } catch(e) {
+            showToast('❌ Không thể lưu dữ liệu', 'error');
+            return;
+        }
+
+        // Update UI
+        el1.classList.add('saved-input');
+        el2.classList.add('saved-input');
+        cardEl.classList.add('saved');
+
+        if (statusEl) {
+            statusEl.className = 'mc-status saved-badge';
+            statusEl.textContent = 'Đã lưu ✓';
+        }
+
+        if (sbtn) {
+            sbtn.className = 'mc-save-btn btn-saved pulse';
+            sbtn.innerHTML = '<span class="btn-icon">✓</span><span>Đã lưu</span>';
+            setTimeout(() => { if (sbtn) sbtn.classList.remove('pulse'); }, 1500);
+        }
+
+        showToast(`✅ Đã lưu tỷ số ${n1} - ${n2}`, 'success');
+        updateSavedCount();
     }
 
     function updateFilledCount() {
@@ -747,7 +926,17 @@
         document.getElementById('filled-count').textContent = filled;
     }
 
-    function saveScores() {
+    function updateSavedCount() {
+        let sCount = 0;
+        matchData.forEach(m => {
+            if (savedScores[m.id] && savedScores[m.id].s1 !== '' && savedScores[m.id].s2 !== '') {
+                sCount++;
+            }
+        });
+        document.getElementById('saved-count').textContent = sCount;
+    }
+
+    function saveAllScores() {
         let hasError = false;
         let filledCount = 0;
         const newScores = {};
@@ -781,12 +970,19 @@
                     const statusEl = document.getElementById(`status-${m.id}`);
                     if (statusEl) {
                         statusEl.className = 'mc-status saved-badge';
-                        statusEl.textContent = 'Đã lưu';
+                        statusEl.textContent = 'Đã lưu ✓';
                     }
 
                     // Add saved class to card
                     const cardEl = document.getElementById(m.id);
                     if (cardEl) cardEl.classList.add('saved');
+
+                    // Update save button
+                    const sbtn = document.getElementById(`sbtn-${m.id}`);
+                    if (sbtn) {
+                        sbtn.className = 'mc-save-btn btn-saved';
+                        sbtn.innerHTML = '<span class="btn-icon">✓</span><span>Đã lưu</span>';
+                    }
                 }
             }
         });
@@ -801,7 +997,7 @@
             return;
         }
 
-        // Save to localStorage
+        // Save to localStorage (overwrite)
         savedScores = { ...savedScores, ...newScores };
         try {
             localStorage.setItem(STORAGE_KEY, JSON.stringify(savedScores));
@@ -812,6 +1008,7 @@
 
         showToast(`✅ Đã lưu ${filledCount} trận đấu!`, 'success');
         updateFilledCount();
+        updateSavedCount();
     }
 
     function showToast(msg, type) {
@@ -820,7 +1017,7 @@
         toast.className = `toast ${type} show`;
         setTimeout(() => {
             toast.classList.remove('show');
-        }, 2500);
+        }, 2200);
     }
 
     async function init() {
