@@ -1,451 +1,269 @@
-<!DOCTYPE html>
-<html lang="vi">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Pickleball Manager</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-<style>
-:root { --bg: #0f172a; --card: #1e293b; --text: #e2e8f0; --green: #22c55e; --orange: #f59e0b; --purple: #6366f1; --red: #ef4444; --blue: #0ea5e9; }
-* { box-sizing: border-box; margin: 0; padding: 0; outline: none; }
-body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; display: flex; justify-content: center; padding: 20px; }
-.container { width: 100%; max-width: 480px; display: flex; flex-direction: column; gap: 20px; position: relative; }
+/* ===== PICKLEBALL MANAGER API ===== 
+ * Dán toàn bộ code này vào Apps Script
+ * Deploy: Execute as "Me", Who has access "Anyone"
+ */
 
-.card { background: var(--card); border-radius: 16px; padding: 20px; border: 1px solid #334155; box-shadow: 0 4px 6px rgba(0,0,0,0.3); }
-h1 { font-size: 24px; text-align: center; margin-bottom: 8px; background: linear-gradient(to right, #4ade80, #3b82f6); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-h2 { font-size: 16px; color: #94a3b8; margin-bottom: 12px; font-weight: 600; display: flex; align-items: center; gap: 8px; }
+const CONFIG = {
+  SPREADSHEET_ID: "1GUr4TFhq_Ha65en9vthhtii35-RWg28qeEcLiVJaVek",
+  SHEET_PLAYERS: "DanhSachVDV",
+  SHEET_SCHEDULE: "LichThiDau"
+};
 
-input, textarea { width: 100%; background: #0f172a; border: 1px solid #475569; color: white; padding: 12px; border-radius: 10px; font-size: 15px; margin-bottom: 10px; transition: 0.2s; }
-input:focus, textarea:focus { border-color: #3b82f6; box-shadow: 0 0 0 2px rgba(59,130,246,0.2); }
-textarea { min-height: 180px; font-family: monospace; resize: vertical; line-height: 1.5; }
+// ===== ENTRY POINTS =====
+function doGet(e) { return handleRequest(e); }
+function doPost(e) { return handleRequest(e); }
 
-.btn { width: 100%; padding: 14px; border: none; border-radius: 12px; font-weight: 600; font-size: 15px; cursor: pointer; transition: all 0.2s; display: flex; justify-content: center; align-items: center; gap: 8px; color: white; margin-top: 5px; position: relative; overflow: hidden; }
-.btn:active { transform: scale(0.98); }
-.btn-green { background: var(--green); box-shadow: 0 4px 12px rgba(34,197,94,0.25); }
-.btn-orange { background: var(--orange); box-shadow: 0 4px 12px rgba(245,158,11,0.25); }
-.btn-blue { background: var(--blue); box-shadow: 0 4px 12px rgba(14,165,233,0.25); }
-.btn-red { background: var(--red); }
-.btn-purple { background: var(--purple); box-shadow: 0 4px 12px rgba(99,102,241,0.25); }
-
-.hidden { display: none !important; }
-.fade-in { animation: fadeUp 0.4s ease forwards; }
-@keyframes fadeUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-
-.badge { display: inline-block; background: rgba(34,197,94,0.15); color: #4ade80; padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: bold; margin-left: auto; }
-
-.status { padding: 10px; border-radius: 8px; text-align: center; font-size: 13px; font-weight: 500; margin-top: 10px; transition: all 0.3s; }
-.status.loading { background: rgba(245,158,11,0.1); color: #fcd34d; }
-.status.success { background: rgba(34,197,94,0.1); color: #86efac; }
-.status.error { background: rgba(239,68,68,0.1); color: #fca5a5; }
-
-@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-.loader { width: 16px; height: 16px; border: 2px solid white; border-top-color: transparent; border-radius: 50%; animation: spin 0.8s linear infinite; display: inline-block; margin-right: 6px; }
-
-/* Floating Action Button for New Game */
-.fab-container { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); z-index: 50; display: flex; gap: 10px; width: 100%; max-width: 480px; padding: 0 16px; }
-.fab-btn { flex: 1; padding: 16px; border: none; border-radius: 16px; font-weight: 700; font-size: 15px; cursor: pointer; transition: all 0.2s; box-shadow: 0 8px 24px rgba(0,0,0,0.4); display: flex; justify-content: center; align-items: center; gap: 8px; color: white; }
-.fab-btn:active { transform: scale(0.96); }
-.fab-new { background: linear-gradient(135deg, #22c55e, #16a34a); }
-.fab-score { background: linear-gradient(135deg, #3b82f6, #2563eb); }
-
-.toast { position: fixed; top: 20px; left: 50%; transform: translateX(-50%) translateY(-100px); background: #1e293b; border: 1px solid #334155; color: #e2e8f0; padding: 12px 20px; border-radius: 12px; font-size: 14px; font-weight: 500; z-index: 100; box-shadow: 0 10px 30px rgba(0,0,0,0.5); transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); display: flex; align-items: center; gap: 8px; }
-.toast.show { transform: translateX(-50%) translateY(0); }
-
-/* Modal styles */
-.modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.7); display: flex; justify-content: center; align-items: center; z-index: 90; backdrop-filter: blur(4px); }
-</style>
-</head>
-<body>
-
-<div class="container">
-  
-  <!-- LOGIN SCREEN -->
-  <div id="screenLogin" class="card fade-in">
-    <div style="text-align:center; font-size:40px; margin-bottom:10px;">🏓</div>
-    <h1>Pickleball Manager</h1>
-    <p style="text-align:center; color:#64748b; font-size:13px; margin-bottom:20px;">Nhập mật khẩu quản trị để tiếp tục</p>
-    <input type="password" id="passInput" placeholder="Mật khẩu..." onkeydown="if(event.key==='Enter')login()">
-    <button class="btn btn-green" onclick="login()">🔓 Đăng nhập</button>
-    <div id="loginMsg" class="status error hidden" style="margin-top:12px"></div>
-  </div>
-
-  <!-- MAIN DASHBOARD -->
-  <div id="screenMain" class="hidden fade-in">
-    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
-      <div style="display:flex; align-items:center; gap:8px;">
-        <span style="font-size:24px;">🏓</span>
-        <h1 style="margin:0; font-size:20px; text-align:left;">Dashboard</h1>
-      </div>
-      <button class="btn btn-red" style="width:auto; padding:6px 12px; font-size:12px; margin:0;" onclick="logout()">Đăng xuất</button>
-    </div>
-
-    <div class="card">
-      <h2>📋 Danh sách vận động viên <span id="countBadge" class="badge hidden">0 VĐV</span></h2>
-      <textarea id="playersList" placeholder="Đang tải danh sách..." oninput="checkChanges()"></textarea>
-      <div id="statusIndicator" class="status loading hidden">Đang tải dữ liệu...</div>
-    </div>
-  </div>
-
-</div>
-
-<!-- FLOATING BUTTONS -->
-<div id="fabContainer" class="fab-container hidden">
-  <button class="fab-btn fab-new" onclick="showNewGameModal()">🚀 Tạo Game Mới</button>
-  <button class="fab-btn fab-score" onclick="goScore()">🏆 Nhập Tỷ Số</button>
-</div>
-
-<!-- MODAL XÁC NHẬN -->
-<div id="confirmModal" class="modal-overlay hidden" onclick="if(event.target===this)closeModal()">
-  <div class="card fade-in" style="width:90%; max-width:350px; text-align:center;">
-    <div style="font-size:32px; margin-bottom:8px;">⚠️</div>
-    <h2 style="margin:0 0 10px; font-size:18px; color:white;">Xác nhận tạo game mới?</h2>
-    <p style="color:#94a3b8; margin-bottom:20px; font-size:14px;">Hệ thống sẽ lưu danh sách hiện tại vào Sheet và tự động tạo lịch thi đấu mới theo thuật toán tối ưu. Lịch cũ sẽ bị ghi đè.</p>
-    <div style="display:flex; gap:10px;">
-      <button class="btn btn-red" onclick="closeModal()">Hủy</button>
-      <button class="btn btn-green" onclick="executeNewGame()">Tiến hành</button>
-    </div>
-  </div>
-</div>
-
-<script>
-const PASSWORD = "123";
-const SCORE_PAGE_URL = "https://ductrong49.github.io/ritapickleball/tyso.html";
-const API_URL = "https://script.google.com/macros/s/AKfycbx6DwY0sjXIv2ye2MIkEbihO5_buy4ZXYp8Zz7lCbgkj2LQF_RI4vOi4NT4skgcgdRJtQ/exec";
-
-let originalData = "";
-let hasChanges = false;
-
-function login() {
-  const p = document.getElementById('passInput').value;
-  const msg = document.getElementById('loginMsg');
-  if (p === PASSWORD) {
-    document.getElementById('screenLogin').classList.add('hidden');
-    document.getElementById('screenMain').classList.remove('hidden');
-    document.getElementById('fabContainer').classList.remove('hidden');
-    loadData();
-  } else {
-    msg.textContent = "❌ Sai mật khẩu!";
-    msg.classList.remove('hidden');
-  }
-}
-
-function logout() { location.reload(); }
-
-function showStatus(msg, type) {
-  const el = document.getElementById('statusIndicator');
-  el.innerHTML = msg;
-  el.className = `status ${type}`;
-  el.classList.remove('hidden');
-  setTimeout(() => el.classList.add('hidden'), 4000);
-}
-
-function showToast(msg, type = 'success') {
-  const toast = document.createElement('div');
-  toast.className = `toast ${type === 'error' ? 'status error' : 'status success'}`;
-  toast.innerHTML = `${type === 'error' ? '❌' : '✅'} ${msg}`;
-  document.body.appendChild(toast);
-  setTimeout(() => toast.classList.add('show'), 50);
-  setTimeout(() => { toast.classList.remove('show'); setTimeout(() => toast.remove(), 400); }, 3000);
-}
-
-async function fetchAPI(action, method = "GET", body = null) {
-  const url = API_URL + "?action=" + encodeURIComponent(action);
-  const options = { method };
-  if (body) {
-    options.body = JSON.stringify(body);
-    options.headers = { "Content-Type": "text/plain;charset=utf-8" };
-  }
-  const res = await fetch(url, options);
-  const text = await res.text();
-  if (text.trim().startsWith("<")) throw new Error("Lỗi API: Server trả về HTML. Kiểm tra quyền 'Anyone'.");
-  const json = JSON.parse(text);
-  if (!json.success) throw new Error(json.error || "Lỗi từ Server");
-  return json;
-}
-
-async function loadData() {
-  showStatus('<span class="loader"></span> Đang tải danh sách...', 'loading');
-  const txtBox = document.getElementById('playersList');
-  txtBox.disabled = true;
+function handleRequest(e) {
   try {
-    const data = await fetchAPI("getPlayers");
-    txtBox.value = data.players.join('\n');
-    txtBox.disabled = false;
-    originalData = txtBox.value;
+    const action = e?.parameter?.action;
+    const body = parseBody(e);
     
-    const badge = document.getElementById('countBadge');
-    badge.textContent = `${data.players.length} VĐV`;
-    badge.classList.remove('hidden');
+    Logger.log(`[API] action:${action} body:${JSON.stringify(body).slice(0,200)}`);
     
-    showStatus('✅ Đã tải danh sách thành công', 'success');
-  } catch (err) {
-    txtBox.disabled = false;
-    showStatus('❌ ' + err.message, 'error');
-  }
-}
-
-function checkChanges() {
-  const current = document.getElementById('playersList').value;
-  hasChanges = current !== originalData;
-}
-
-function showNewGameModal() {
-  const list = document.getElementById('playersList').value.split('\n').map(s => s.trim()).filter(s => s);
-  if (list.length < 5) {
-    showToast("Cần tối thiểu 5 VĐV để tạo lịch!", "error");
-    return;
-  }
-  if (list.length > 12) {
-    showToast("Tối đa hỗ trợ 12 VĐV!", "error");
-    return;
-  }
-  if (!hasChanges && list.length === originalData.split('\n').filter(s=>s.trim()).length) {
-    // Vẫn cho phép tạo lại nếu muốn
-  }
-  document.getElementById('confirmModal').classList.remove('hidden');
-}
-
-function closeModal() { document.getElementById('confirmModal').classList.add('hidden'); }
-
-async function executeNewGame() {
-  closeModal();
-  showStatus('<span class="loader"></span> Bước 1/3: Lưu danh sách...', 'loading');
-  
-  const text = document.getElementById('playersList').value;
-  const list = text.split('\n').map(s => s.trim()).filter(s => s);
-  
-  if (list.length < 5 || list.length > 12) { 
-    showToast("Số lượng VĐV phải từ 5-12!", "error"); 
-    return; 
-  }
-
-  try {
-    await fetchAPI("savePlayers", "POST", { players: list });
-    
-    showStatus('<span class="loader"></span> Bước 2/3: Tạo lịch thi đấu tối ưu...', 'loading');
-    const scheduleResult = await fetchAPI("createSchedule", "POST", {});
-    
-    showStatus('<span class="loader"></span> Bước 3/3: Hoàn tất...', 'loading');
-    
-    showStatus('✅ Hoàn tất! Đã tạo Game & Lịch mới', 'success');
-    showToast(`🎉 Tạo game thành công! ${scheduleResult.matches} trận, Mode: ${scheduleResult.mode}`);
-    
-    originalData = document.getElementById('playersList').value;
-    hasChanges = false;
-    loadData();
-  } catch (err) {
-    showStatus('❌ ' + err.message, 'error');
-    showToast(err.message, "error");
-  }
-}
-
-function goScore() { window.location.href = SCORE_PAGE_URL; }
-</script>
-
-<!-- 
-  ==========================================
-  GOOGLE APPS SCRIPT (Dán vào file Code.gs)
-  ==========================================
-*/
-
-const SPREADSHEET_ID = "1GUr4TFhq_Ha65en9vthhtii35-RWg28qeEcLiVJaVek";
-const SHEET_NAME_PLAYERS = "DanhSachVDV";
-const SHEET_NAME_SCHEDULE = "LichThiDau";
-
-function doGet(e) { return processRequest(e); }
-function doPost(e) { return processRequest(e); }
-
-function processRequest(e) {
-  var lock = LockService.getScriptLock();
-  lock.tryLock(30000); // Tăng thời gian lock cho thuật toán chạy
-  try {
-    var action = (e.parameter && e.parameter.action) ? e.parameter.action : "";
-    var bodyData = {};
-    if (e.postData && e.postData.contents) {
-      try { bodyData = JSON.parse(e.postData.contents); } catch(err) {}
-    }
     switch(action) {
-      case "getPlayers": return reply(getPlayers());
-      case "savePlayers": return reply(savePlayers(bodyData.players));
-      case "createSchedule": return reply(createSchedule());
-      default: return reply({ success: false, error: "Action không hợp lệ" });
+      case "ping": 
+        return jsonResponse({ success: true, message: "API OK", time: new Date().toISOString() });
+        
+      case "getPlayers": 
+        return jsonResponse(getPlayers());
+        
+      case "savePlayers": 
+        return jsonResponse(savePlayers(body?.players));
+        
+      case "createSchedule": 
+        return jsonResponse(createSchedule());
+        
+      default: 
+        return jsonResponse({ success: false, error: `Action không hợp lệ: ${action}` });
     }
-  } catch(err) { 
-    Logger.log("Error: " + err);
-    return reply({ success: false, error: err.message }); 
+    
+  } catch (err) {
+    Logger.log(`[ERROR] ${err.message}\n${err.stack}`);
+    return jsonResponse({ success: false, error: err.message });
   }
-  finally { lock.releaseLock(); }
 }
 
+// ===== UTILS =====
+function parseBody(e) {
+  if (!e?.postData?.contents) return {};
+  try {
+    return JSON.parse(e.postData.contents);
+  } catch {
+    return {};
+  }
+}
+
+function jsonResponse(data) {
+  return ContentService
+    .createTextOutput(JSON.stringify(data))
+    .setMimeType(ContentService.MimeType.JSON);
+}
+
+function getSheet(name) {
+  const ss = SpreadsheetApp.openById(CONFIG.SPREADSHEET_ID);
+  const sheet = ss.getSheetByName(name);
+  if (!sheet) throw new Error(`Sheet '${name}' không tồn tại`);
+  return sheet;
+}
+
+function getOrCreateSheet(name) {
+  const ss = SpreadsheetApp.openById(CONFIG.SPREADSHEET_ID);
+  let sheet = ss.getSheetByName(name);
+  if (!sheet) sheet = ss.insertSheet(name);
+  return sheet;
+}
+
+// ===== PLAYER MANAGEMENT =====
 function getPlayers() {
-  var ss = SpreadsheetApp.openById(SPREADSHEET_ID);
-  var sheet = ss.getSheetByName(SHEET_NAME_PLAYERS);
-  if(!sheet) throw new Error("Không tìm thấy sheet '" + SHEET_NAME_PLAYERS + "'");
-  var last = sheet.getLastRow();
-  if(last < 2) return { success: true, players: [] };
-  var data = sheet.getRange(2, 1, last - 1, 1).getValues().flat();
-  return { 
-    success: true, 
-    players: data.filter(p => p !== null && String(p).trim() !== "").map(String) 
-  };
+  const sheet = getSheet(CONFIG.SHEET_PLAYERS);
+  const lastRow = sheet.getLastRow();
+  
+  if (lastRow < 2) return { success: true, players: [] };
+  
+  const values = sheet.getRange(2, 1, lastRow - 1, 1)
+    .getValues()
+    .flat()
+    .map(v => String(v).trim())
+    .filter(v => v);
+    
+  return { success: true, players: values };
 }
 
 function savePlayers(arr) {
-  var ss = SpreadsheetApp.openById(SPREADSHEET_ID);
-  var sheet = ss.getSheetByName(SHEET_NAME_PLAYERS);
-  if(!sheet) throw new Error("Không tìm thấy sheet '" + SHEET_NAME_PLAYERS + "'");
+  if (!Array.isArray(arr)) throw new Error("Dữ liệu không hợp lệ");
+  
+  const sheet = getSheet(CONFIG.SHEET_PLAYERS);
   sheet.getRange("A2:A").clearContent();
-  if(!Array.isArray(arr)) return { success: true, message: "Đã xóa" };
-  var clean = arr.filter(p => String(p).trim() !== "").map(p => [String(p).trim()]);
-  if(clean.length > 0) sheet.getRange(2, 1, clean.length, 1).setValues(clean);
-  return { success: true, message: "Đã lưu " + clean.length + " VĐV" };
+  
+  const clean = arr.map(v => String(v).trim()).filter(v => v);
+  
+  if (clean.length > 0) {
+    sheet.getRange(2, 1, clean.length, 1).setValues(clean.map(p => [p]));
+  }
+  
+  return { 
+    success: true, 
+    message: `Đã lưu ${clean.length} VĐV`,
+    count: clean.length 
+  };
 }
 
-// ===== HÀM TẠO LỊCH TỐI ƯU (Web App Compatible) =====
+// ===== SCHEDULE GENERATION (Optimized for Web App) =====
 function createSchedule() {
-  const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
-  const shP = ss.getSheetByName(SHEET_NAME_PLAYERS);
-  const shM = ss.getSheetByName(SHEET_NAME_SCHEDULE);
+  const players = getPlayers().players;
   
-  if(!shP) throw new Error("Không tìm thấy sheet '" + SHEET_NAME_PLAYERS + "'");
-  if(!shM) {
-    // Tạo sheet lịch nếu chưa có
-    ss.insertSheet(SHEET_NAME_SCHEDULE);
-  }
-
-  let players = shP.getRange("A2:A").getValues().flat().filter(p => p && String(p).trim() !== "").map(String);
-
+  // Validate
   if (players.length < 5 || players.length > 12) {
-    throw new Error("Chỉ hỗ trợ 5–12 VĐV. Hiện có: " + players.length);
+    throw new Error(`Cần 5-12 VĐV để tạo lịch. Hiện có: ${players.length}`);
   }
-
+  
   const N = players.length;
-  const target = N - 1;
-
-  // ===== AUTO MODE =====
-  let mode = "";
-  if (N <= 6) mode = "NO_REPEAT";
-  else if (N <= 8) mode = "HYBRID";
-  else mode = "FULL_MATCH";
-
-  // ===== STATS =====
-  let playerMatch = {};
-  let pairCount = {};
-  let opponentCount = {};
-  players.forEach(p => playerMatch[p] = 0);
-
-  function pairKey(a,b){
-    return [a,b].sort().join("-");
-  }
-
-  let matches = [];
-  let loop = 8000; // Tăng loop cho N lớn
-
-  while (loop-- > 0) {
-    let done;
-    if (mode === "NO_REPEAT") {
-      done = false;
-    } else {
-      done = players.every(p => playerMatch[p] >= target);
+  const mode = N <= 6 ? "NO_REPEAT" : N <= 8 ? "HYBRID" : "FULL_MATCH";
+  const targetMatches = N - 1; // Mỗi VĐV nên chơi ~N-1 trận
+  
+  // Stats tracking
+  const playerMatches = {};
+  const pairHistory = {};
+  const opponentHistory = {};
+  players.forEach(p => playerMatches[p] = 0);
+  
+  const pairKey = (a, b) => [a, b].sort().join("|");
+  const matches = [];
+  
+  // ⚠️ Giới hạn vòng lặp để tránh timeout (GAS max 6 phút)
+  const maxIterations = N <= 8 ? 4000 : 6000;
+  let iterations = 0;
+  
+  while (iterations++ < maxIterations) {
+    // Check stop condition (cho mode không phải NO_REPEAT)
+    if (mode !== "NO_REPEAT" && players.every(p => playerMatches[p] >= targetMatches)) {
+      break;
     }
-    if (done) break;
-
-    let best = null;
+    
+    let bestMatch = null;
     let bestScore = Infinity;
-
-    for (let i = 0; i < players.length; i++) {
-      for (let j = i+1; j < players.length; j++) {
-        for (let k = 0; k < players.length; k++) {
-          for (let l = k+1; l < players.length; l++) {
-            let t1 = [players[i], players[j]];
-            let t2 = [players[k], players[l]];
-            let all = [...t1, ...t2];
-            if (new Set(all).size < 4) continue;
-
-            let score = 0;
-            let k1 = pairKey(t1[0], t1[1]);
-            let k2 = pairKey(t2[0], t2[1]);
-
+    
+    // Duyệt tất cả combination 4 người → 2 đội
+    for (let i = 0; i < N; i++) {
+      for (let j = i + 1; j < N; j++) {
+        for (let k = 0; k < N; k++) {
+          for (let l = k + 1; l < N; l++) {
+            const team1 = [players[i], players[j]];
+            const team2 = [players[k], players[l]];
+            const allPlayers = [...team1, ...team2];
+            
+            // Phải có 4 người khác nhau
+            if (new Set(allPlayers).size < 4) continue;
+            
+            const pair1Key = pairKey(team1[0], team1[1]);
+            const pair2Key = pairKey(team2[0], team2[1]);
+            
+            // ===== MODE CONTROL =====
             if (mode === "NO_REPEAT") {
-              if (pairCount[k1] || pairCount[k2]) continue;
+              // Không cho phép lặp cặp đã chơi
+              if (pairHistory[pair1Key] || pairHistory[pair2Key]) continue;
             }
             if (mode === "HYBRID") {
-              if ((pairCount[k1] || pairCount[k2]) && Math.random() < 0.7) continue;
+              // 60% chance skip nếu cặp đã chơi
+              if ((pairHistory[pair1Key] || pairHistory[pair2Key]) && Math.random() < 0.6) continue;
             }
-
-            // Ưu tiên người ít trận
-            all.forEach(p => { score += playerMatch[p] * 5; });
-            // Phạt trùng partner
-            score += (pairCount[k1] || 0) * 50;
-            score += (pairCount[k2] || 0) * 50;
-            // Phạt trùng đối thủ
-            t1.forEach(p1 => {
-              t2.forEach(p2 => {
-                let key = pairKey(p1,p2);
-                score += (opponentCount[key] || 0) * 10;
+            
+            // ===== SCORING (càng thấp càng tốt) =====
+            let score = 0;
+            
+            // Ưu tiên: người ít trận được chọn trước
+            allPlayers.forEach(p => {
+              score += (playerMatches[p] || 0) * 4;
+            });
+            
+            // Phạt: cặp đã từng chơi chung
+            score += (pairHistory[pair1Key] || 0) * 45;
+            score += (pairHistory[pair2Key] || 0) * 45;
+            
+            // Phạt: đối thủ đã gặp nhau
+            team1.forEach(p1 => {
+              team2.forEach(p2 => {
+                const oppKey = pairKey(p1, p2);
+                score += (opponentHistory[oppKey] || 0) * 12;
               });
             });
-
+            
+            // Random nhỏ để tránh bias
+            score += Math.random() * 0.1;
+            
             if (score < bestScore) {
               bestScore = score;
-              best = [t1, t2];
+              bestMatch = { team1, team2 };
             }
           }
         }
       }
     }
-
-    if (!best) break;
-    matches.push(best);
-    let [t1,t2] = best;
-    [...t1,...t2].forEach(p => playerMatch[p]++);
-
-    let k1 = pairKey(t1[0], t1[1]);
-    let k2 = pairKey(t2[0], t2[1]);
-    pairCount[k1] = (pairCount[k1] || 0) + 1;
-    pairCount[k2] = (pairCount[k2] || 0) + 1;
-
-    t1.forEach(p1 => {
-      t2.forEach(p2 => {
-        let key = pairKey(p1,p2);
-        opponentCount[key] = (opponentCount[key] || 0) + 1;
+    
+    // Không tìm được match phù hợp
+    if (!bestMatch) break;
+    
+    // Lưu match
+    matches.push(bestMatch);
+    const { team1, team2 } = bestMatch;
+    
+    // Update stats
+    [...team1, ...team2].forEach(p => {
+      playerMatches[p] = (playerMatches[p] || 0) + 1;
+    });
+    
+    pairHistory[pairKey(team1[0], team1[1])] = (pairHistory[pairKey(team1[0], team1[1])] || 0) + 1;
+    pairHistory[pairKey(team2[0], team2[1])] = (pairHistory[pairKey(team2[0], team2[1])] || 0) + 1;
+    
+    team1.forEach(p1 => {
+      team2.forEach(p2 => {
+        const key = pairKey(p1, p2);
+        opponentHistory[key] = (opponentHistory[key] || 0) + 1;
       });
     });
   }
-
-  // ===== OUTPUT TO SHEET =====
-  shM.clearContents();
-  shM.appendRow(["Trận","P1","P2","P3","P4","Điểm1","Điểm2","Thắng1","Thắng2"]);
-  shM.getRange(1,1,1,9).setFontWeight("bold").setBackground("#1e293b").setFontColor("#e2e8f0");
-
-  matches.forEach((m,i)=>{
-    let row = i + 2;
-    shM.appendRow([
-      i+1,
-      m[0][0], m[0][1],
-      m[1][0], m[1][1],
-      "", "",
-      `=IF(F${row}>G${row};1;0)`,
-      `=IF(G${row}>F${row};1;0)`
+  
+  // ===== WRITE TO SHEET =====
+  const sheet = getOrCreateSheet(CONFIG.SHEET_SCHEDULE);
+  sheet.clearContents();
+  
+  // Header
+  sheet.appendRow(["Trận", "P1", "P2", "P3", "P4", "Điểm1", "Điểm2", "Thắng1", "Thắng2"]);
+  sheet.getRange(1, 1, 1, 9)
+    .setFontWeight("bold")
+    .setBackground("#1e293b")
+    .setFontColor("#e2e8f0")
+    .setHorizontalAlignment("center");
+  
+  // Matches with formulas
+  matches.forEach((m, idx) => {
+    const row = idx + 2;
+    sheet.appendRow([
+      idx + 1,
+      m.team1[0], m.team1[1],
+      m.team2[0], m.team2[1],
+      "", "", // Điểm để người dùng nhập
+      `=IF(F${row}>G${row},1,0)`, // Thắng1
+      `=IF(G${row}>F${row},1,0)`  // Thắng2
     ]);
   });
   
-  // Auto resize columns
-  shM.autoResizeColumns(1, 9);
-
-  // ===== RETURN STATS =====
-  let summary = {};
-  players.forEach(p => summary[p] = playerMatch[p]);
-
-  return { 
-    success: true, 
-    message: "Đã tạo " + matches.length + " trận",
+  // Auto-format
+  sheet.autoResizeColumns(1, 9);
+  sheet.getRange("H2:I").setHorizontalAlignment("center");
+  
+  // ===== RETURN RESULT =====
+  const stats = {};
+  players.forEach(p => stats[p] = playerMatches[p] || 0);
+  
+  Logger.log(`[SCHEDULE] Created ${matches.length} matches | Mode: ${mode} | Players: ${N}`);
+  
+  return {
+    success: true,
+    message: `✅ Tạo thành công ${matches.length} trận`,
     matches: matches.length,
     mode: mode,
-    stats: summary
+    players: N,
+    stats: stats
   };
-}
-
-function reply(obj) {
-  return ContentService.createTextOutput(JSON.stringify(obj)).setMimeType(ContentService.MimeType.JSON);
 }
