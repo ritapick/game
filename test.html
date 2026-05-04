@@ -1,135 +1,148 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🏓 Pickleball</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+<style>
+body {
+    font-family: 'Inter', sans-serif;
+    background: #0b0f19;
+    color: #fff;
+    padding: 10px;
+}
+.wrapper {
+    max-width: 600px;
+    margin: auto;
+}
+.match-card {
+    background: #141a2b;
+    padding: 12px;
+    border-radius: 12px;
+    margin-bottom: 10px;
+}
+.mc-score-row input {
+    width: 50px;
+    text-align: center;
+    font-size: 18px;
+}
+button {
+    padding: 10px;
+    width: 100%;
+    border-radius: 8px;
+    border: none;
+    background: orange;
+    font-weight: bold;
+}
+.saved { background: green; color: #fff; }
+</style>
+</head>
+
+<body>
+
+<div class="wrapper">
+    <h2>🏓 Nhập tỷ số</h2>
+    <div id="match-area">Loading...</div>
+</div>
+
 <script>
-    const SHEET_ID = '1GUr4TFhq_Ha65en9vthhtii35-RWg28qeEcLiVJaVek';
-    const BASE = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq`;
+const API = "https://script.google.com/macros/s/AKfycbx7cwJckISpH91ypZ6H1FfIHcvzz-3fr3Ftk8Z6CnJKmY0TveaJiDMmaqRyzqznkY73/exec";
 
-    // ✅ URL Apps Script của bạn
-    const API_SAVE = "https://script.google.com/macros/s/AKfycbyxsOOLV8wZe-4-T-7YhYKaB-FW9kyY-E8jVh9HQBXtjV93xOlh3neYN8QcPh2RpzU0Kg/exec";
+const SHEET_ID = "1GUr4TFhq_Ha65en9vthhtii35-RWg28qeEcLiVJaVek";
+const BASE = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq`;
 
-    const STORAGE_KEY = 'pickleball_scores_' + SHEET_ID;
+let matchData = [];
 
-    let savedScores = {};
-    let matchData = [];
+function getSheet(sheet, range){
+    return fetch(`${BASE}?tqx=out:json&sheet=${sheet}&range=${range}`)
+    .then(r=>r.text())
+    .then(t=>{
+        const json = JSON.parse(t.match(/setResponse\(([\s\S]+)\)/)[1]);
+        return json;
+    });
+}
 
-    function getSheet(sheetName, range) {
-        const url = `${BASE}?tqx=out:json&sheet=${encodeURIComponent(sheetName)}&range=${encodeURIComponent(range)}`;
-        return fetch(url).then(r => {
-            if (!r.ok) throw new Error('Không kết nối được Google Sheets');
-            return r.text();
-        }).then(txt => {
-            const m = txt.match(/google\.visualization\.Query\.setResponse\(([\s\S]*?)\);?$/);
-            if (!m) throw new Error('Parse dữ liệu thất bại');
-            return JSON.parse(m[1]);
+function val(r,i){
+    return r.c[i] ? r.c[i].v : "";
+}
+
+function render(data){
+    const t = data.table;
+    let html = "";
+
+    let i = 0;
+
+    t.rows.forEach(row=>{
+        if(!row.c) return;
+
+        i++;
+
+        const id = "m"+i;
+
+        const t1 = val(row,1)+" & "+val(row,2);
+        const t2 = val(row,3)+" & "+val(row,4);
+
+        html += `
+        <div class="match-card" id="${id}">
+            <div>${t1} vs ${t2}</div>
+
+            <div class="mc-score-row">
+                <input id="s1-${id}" type="number">
+                -
+                <input id="s2-${id}" type="number">
+            </div>
+
+            <button onclick="save('${id}')">Lưu</button>
+        </div>
+        `;
+    });
+
+    document.getElementById("match-area").innerHTML = html;
+}
+
+async function save(id){
+    const s1 = document.getElementById("s1-"+id).value;
+    const s2 = document.getElementById("s2-"+id).value;
+
+    if(s1===""||s2===""){
+        alert("Nhập đủ điểm");
+        return;
+    }
+
+    try{
+        const res = await fetch(API,{
+            method:"POST",
+            body: JSON.stringify({
+                matchId:id,
+                s1:parseInt(s1),
+                s2:parseInt(s2)
+            })
         });
-    }
 
-    function val(row, ci) {
-        if (!row.c || !row.c[ci] || row.c[ci].v == null) return '';
-        return String(row.c[ci].v);
-    }
+        const data = await res.json();
 
-    function loadSavedScores() {
-        try {
-            const stored = localStorage.getItem(STORAGE_KEY);
-            if (stored) savedScores = JSON.parse(stored);
-        } catch(e) {
-            savedScores = {};
-        }
-    }
-
-    // =========================
-    // ✅ HÀM GỬI DATA LÊN SHEET
-    // =========================
-    async function sendToSheet(matchId, s1, s2) {
-        try {
-            await fetch(API_SAVE, {
-                method: "POST",
-                mode: "no-cors", // tránh lỗi CORS
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify({
-                    matchId: matchId,
-                    score1: s1,
-                    score2: s2
-                })
-            });
-            return true;
-        } catch (e) {
-            console.error("Lỗi gửi sheet:", e);
-            return false;
-        }
-    }
-
-    function saveSingleScore(matchId) {
-        const el1 = document.getElementById(`s1-${matchId}`);
-        const el2 = document.getElementById(`s2-${matchId}`);
-        const statusEl = document.getElementById(`status-${matchId}`);
-        const cardEl = document.getElementById(matchId);
-        const sbtn = document.getElementById(`sbtn-${matchId}`);
-
-        if (!el1 || !el2) return;
-
-        const v1 = el1.value.trim();
-        const v2 = el2.value.trim();
-
-        el1.classList.remove('saved-input', 'error-input');
-        el2.classList.remove('saved-input', 'error-input');
-
-        if (v1 === '' && v2 === '') {
-            showToast('⚠️ Vui lòng nhập tỷ số', 'warning');
-            return;
+        if(data.success){
+            document.getElementById(id).classList.add("saved");
+            alert("✅ Đã lưu");
+        }else{
+            alert("❌ "+data.error);
         }
 
-        if (v1 === '' || v2 === '') {
-            showToast('⚠️ Nhập đủ 2 tỷ số', 'warning');
-            return;
-        }
-
-        const n1 = parseInt(v1);
-        const n2 = parseInt(v2);
-
-        if (isNaN(n1) || isNaN(n2)) {
-            showToast('⚠️ Tỷ số không hợp lệ', 'warning');
-            return;
-        }
-
-        // ✅ lưu local
-        savedScores[matchId] = { s1: n1, s2: n2 };
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(savedScores));
-
-        // ✅ gửi lên sheet
-        sendToSheet(matchId, n1, n2);
-
-        // UI giữ nguyên
-        el1.classList.add('saved-input');
-        el2.classList.add('saved-input');
-        cardEl.classList.add('saved');
-
-        statusEl.className = 'mc-status saved-badge';
-        statusEl.textContent = 'Đã lưu';
-
-        sbtn.className = 'mc-save-btn btn-saved pulse';
-        sbtn.innerHTML = '<span class="btn-icon">✓</span><span>Đã lưu</span>';
-
-        showToast(`✅ Đã lưu ${n1} - ${n2}`, 'success');
+    }catch(e){
+        alert("Lỗi kết nối");
     }
+}
 
-    function showToast(msg, type) {
-        const toast = document.getElementById('toast');
-        toast.textContent = msg;
-        toast.className = `toast ${type} show`;
-        setTimeout(() => toast.classList.remove('show'), 2000);
-    }
+async function init(){
+    const data = await getSheet("lichthidau","A2:G100");
+    render(data);
+}
 
-    async function init() {
-        loadSavedScores();
-        const [rankRes, matchRes] = await Promise.all([
-            getSheet('danhsachvdv', 'E1:I25'),
-            getSheet('lichthidau', 'A2:G100')
-        ]);
-        renderRanking(rankRes);
-        renderMatches(matchRes);
-    }
-
-    init();
+init();
 </script>
+
+</body>
+</html>
