@@ -1,18 +1,4 @@
 <!DOCTYPE html>
-                        <html lang="en">
-                        <head>
-                            <meta charset="UTF-8">
-                            <meta name="viewport" content="width=device-width, initial-scale=1.0">
-              <style>
-                body {
-                  background-color: white; /* Ensure the iframe has a white background */
-                }
-
-                
-              </style>
-                        </head>
-                        <body>
-                            <!DOCTYPE html>
 <html lang="vi">
 <head>
 <meta charset="UTF-8">
@@ -20,13 +6,11 @@
 <title>Pickleball Manager</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-/* CSS */
-:root { --bg: #0f172a; --card: #1e293b; --text: #e2e8f0; --green: #22c55e; --orange: #f59e0b; --purple: #6366f1; --red: #ef4444; }
+:root { --bg: #0f172a; --card: #1e293b; --text: #e2e8f0; --green: #22c55e; --orange: #f59e0b; --purple: #6366f1; --red: #ef4444; --blue: #0ea5e9; }
 * { box-sizing: border-box; margin: 0; padding: 0; outline: none; }
 body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; display: flex; justify-content: center; padding: 20px; }
 .container { width: 100%; max-width: 480px; display: flex; flex-direction: column; gap: 20px; }
 
-/* UI Components */
 .card { background: var(--card); border-radius: 16px; padding: 20px; border: 1px solid #334155; box-shadow: 0 4px 6px rgba(0,0,0,0.3); }
 h1, h2 { text-align: center; }
 h1 { font-size: 24px; margin-bottom: 8px; background: linear-gradient(to right, #4ade80, #3b82f6); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
@@ -41,7 +25,7 @@ textarea { min-height: 150px; font-family: monospace; resize: vertical; }
 .btn-green { background: var(--green); box-shadow: 0 4px 12px rgba(34,197,94,0.25); }
 .btn-orange { background: var(--orange); box-shadow: 0 4px 12px rgba(245,158,11,0.25); }
 .btn-purple { background: var(--purple); box-shadow: 0 4px 12px rgba(99,102,241,0.25); }
-.btn-blue { background: #0ea5e9; box-shadow: 0 4px 12px rgba(14,165,233,0.25); }
+.btn-blue { background: var(--blue); box-shadow: 0 4px 12px rgba(14,165,233,0.25); }
 .btn-red { background: var(--red); }
 
 .hidden { display: none !important; }
@@ -87,7 +71,7 @@ textarea { min-height: 150px; font-family: monospace; resize: vertical; }
     <div class="card">
       <h2>📋 Danh sách vận động viên</h2>
       <div id="countBadge" class="badge hidden">0 VĐV</div>
-      <textarea id="playersList" placeholder="Nhấn nút tải để lấy danh sách..."></textarea>
+      <textarea id="playersList" placeholder="Đang tải danh sách..."></textarea>
       <button class="btn btn-purple" onclick="savePlayers()">💾 Lưu danh sách (A2:A)</button>
     </div>
 
@@ -121,7 +105,6 @@ textarea { min-height: 150px; font-family: monospace; resize: vertical; }
 // ================= CẤU HÌNH =================
 const PASSWORD = "123";
 const SCORE_PAGE_URL = "https://ductrong49.github.io/ritapickleball/tyso.html";
-// ⚠️ QUAN TRỌNG: Thay URL này bằng URL Web App MỚI sau khi bạn Deploy lại Apps Script
 const API_URL = "https://script.google.com/macros/s/AKfycbwO-K7GM3d9A_hiEXRJMhQOrWlYNiry-KnPATDXFz0E7Gjtqn2aeZqNew9fDozkuoHL6Q/exec";
 
 // ================= XỬ LÝ LOGIC =================
@@ -147,7 +130,7 @@ function showStatus(elId, msg, type) {
   el.className = `status ${type}`;
 }
 
-// 🛠️ HÀM GỌI API AN TOÀN (SỬA LỖI UNEXPECTED TOKEN '<')
+// 🛠️ HÀM GỌI API AN TOÀN
 async function fetchAPI(action, method = "GET", body = null) {
   try {
     const res = await fetch(API_URL, {
@@ -158,9 +141,8 @@ async function fetchAPI(action, method = "GET", body = null) {
     
     const text = await res.text();
     
-    // Kiểm tra xem server có trả về HTML (lỗi) thay vì JSON không
     if (text.trim().startsWith("<")) {
-      throw new Error("Lỗi API: Server trả về mã HTML. Vui lòng kiểm tra quyền truy cập 'Anyone' khi Deploy Apps Script.");
+      throw new Error("Lỗi API: Server trả về HTML. Kiểm tra quyền 'Anyone' khi Deploy Apps Script.");
     }
     
     return JSON.parse(text);
@@ -182,7 +164,6 @@ async function loadData() {
     txtBox.value = data.players.join('\n');
     txtBox.disabled = false;
     
-    // Cập nhật số lượng
     const badge = document.getElementById('countBadge');
     badge.textContent = `✅ ${data.players.length} VĐV`;
     badge.classList.remove('hidden');
@@ -205,7 +186,7 @@ async function savePlayers() {
     const data = await fetchAPI("savePlayers", "POST", { action: "savePlayers", players: list });
     if (!data.success) throw new Error(data.error);
     showStatus('mainStatus', `✅ ${data.message}`, 'success');
-    loadData(); // Reload lại badge
+    loadData();
   } catch (err) {
     showStatus('mainStatus', '❌ ' + err.message, 'error');
   }
@@ -223,7 +204,7 @@ async function createSchedule() {
   }
 }
 
-// 🚀 TẠO GAME MỚI (HỢP NHẤT)
+// 🚀 TẠO GAME MỚI
 function showNewGameModal() { document.getElementById('confirmModal').classList.remove('hidden'); }
 function closeModal() { document.getElementById('confirmModal').classList.add('hidden'); }
 
@@ -235,11 +216,9 @@ async function executeNewGame() {
     const text = document.getElementById('playersList').value;
     const list = text.split('\n').map(s => s.trim()).filter(s => s);
 
-    // 1. Lưu
     const resSave = await fetchAPI("savePlayers", "POST", { action: "savePlayers", players: list });
     if (!resSave.success) throw new Error(resSave.error);
 
-    // 2. Tạo lịch
     showStatus('mainStatus', '<span class="loader"></span> Bước 2/2: Tạo lịch thi đấu...', 'loading');
     const resSched = await fetchAPI("createSchedule", "POST", { action: "createSchedule" });
     if (!resSched.success) throw new Error(resSched.error);
@@ -256,3 +235,4 @@ function goScore() { window.location.href = SCORE_PAGE_URL; }
 
 </body>
 </html>
+
