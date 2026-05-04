@@ -1,269 +1,544 @@
-/* ===== PICKLEBALL MANAGER API ===== 
- * Dán toàn bộ code này vào Apps Script
- * Deploy: Execute as "Me", Who has access "Anyone"
- */
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pickleball Manager</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+  color: #e2e8f0;
+  min-height: 100vh;
+  padding: 20px;
+  line-height: 1.5;
+}
+.container { max-width: 520px; margin: auto; }
 
-const CONFIG = {
-  SPREADSHEET_ID: "1GUr4TFhq_Ha65en9vthhtii35-RWg28qeEcLiVJaVek",
-  SHEET_PLAYERS: "DanhSachVDV",
-  SHEET_SCHEDULE: "LichThiDau"
-};
+/* Card */
+.card {
+  background: #1e293b;
+  border-radius: 16px;
+  padding: 24px;
+  margin-bottom: 16px;
+  border: 1px solid #334155;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+}
+h2 { 
+  font-size: 20px; 
+  margin-bottom: 16px; 
+  display: flex; 
+  align-items: center; 
+  gap: 8px;
+  background: linear-gradient(to right, #4ade80, #3b82f6);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
 
-// ===== ENTRY POINTS =====
-function doGet(e) { return handleRequest(e); }
-function doPost(e) { return handleRequest(e); }
+/* Form elements */
+input, textarea {
+  width: 100%;
+  padding: 14px;
+  margin: 8px 0;
+  border-radius: 12px;
+  border: 2px solid #475569;
+  background: #0f172a;
+  color: white;
+  font-size: 15px;
+  transition: border-color 0.2s;
+}
+input:focus, textarea:focus {
+  border-color: #3b82f6;
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(59,130,246,0.2);
+}
+textarea { 
+  min-height: 200px; 
+  font-family: monospace; 
+  resize: vertical;
+  line-height: 1.6;
+}
 
-function handleRequest(e) {
+/* Buttons */
+button {
+  margin-top: 12px;
+  padding: 14px 20px;
+  width: 100%;
+  border: none;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #22c55e, #16a34a);
+  color: white;
+  font-weight: 600;
+  font-size: 15px;
+  cursor: pointer;
+  transition: transform 0.1s, box-shadow 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+button:hover { box-shadow: 0 4px 12px rgba(34,197,94,0.4); }
+button:active { transform: scale(0.98); }
+button:disabled { opacity: 0.6; cursor: not-allowed; }
+
+.btn-secondary {
+  background: linear-gradient(135deg, #3b82f6, #2563eb);
+}
+.btn-danger {
+  background: linear-gradient(135deg, #ef4444, #dc2626);
+}
+.btn-outline {
+  background: transparent;
+  border: 2px solid #475569;
+  color: #94a3b8;
+}
+
+/* Status & Toast */
+.status {
+  margin-top: 16px;
+  padding: 12px;
+  border-radius: 10px;
+  font-size: 14px;
+  text-align: center;
+  display: none;
+}
+.status.show { display: block; animation: slideDown 0.3s ease; }
+.status.loading { background: rgba(245,158,11,0.15); color: #fcd34d; border: 1px solid #f59e0b; }
+.status.success { background: rgba(34,197,94,0.15); color: #86efac; border: 1px solid #22c55e; }
+.status.error { background: rgba(239,68,68,0.15); color: #fca5a5; border: 1px solid #ef4444; }
+
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Toast notification */
+.toast {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%) translateY(-100px);
+  background: #1e293b;
+  border: 1px solid #334155;
+  padding: 14px 20px;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 500;
+  z-index: 1000;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+  transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  max-width: 90%;
+}
+.toast.show { transform: translateX(-50%) translateY(0); }
+.toast.success { border-left: 4px solid #22c55e; }
+.toast.error { border-left: 4px solid #ef4444; }
+
+/* Loader */
+.loader {
+  width: 18px; height: 18px;
+  border: 2px solid currentColor;
+  border-top-color: transparent;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  display: inline-block;
+  vertical-align: middle;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* Badge */
+.badge {
+  display: inline-block;
+  background: rgba(34,197,94,0.2);
+  color: #4ade80;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  margin-left: auto;
+}
+
+/* Hidden */
+.hidden { display: none !important; }
+
+/* FAB Buttons */
+.fab-group {
+  display: flex;
+  gap: 12px;
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 90%;
+  max-width: 500px;
+  z-index: 50;
+}
+.fab-btn {
+  flex: 1;
+  padding: 16px;
+  border-radius: 16px;
+  font-weight: 700;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+}
+
+/* Modal */
+.modal {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.75);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 200;
+  backdrop-filter: blur(4px);
+}
+.modal-content {
+  background: #1e293b;
+  border-radius: 16px;
+  padding: 24px;
+  width: 90%;
+  max-width: 400px;
+  text-align: center;
+  border: 1px solid #334155;
+}
+.modal-buttons {
+  display: flex;
+  gap: 12px;
+  margin-top: 20px;
+}
+.modal-buttons button { flex: 1; margin-top: 0; }
+
+/* Stats grid */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+  margin-top: 12px;
+}
+.stat-item {
+  background: #0f172a;
+  padding: 10px;
+  border-radius: 10px;
+  font-size: 13px;
+  text-align: center;
+}
+.stat-value { font-weight: 700; color: #4ade80; font-size: 16px; }
+</style>
+</head>
+<body>
+
+<div class="container">
+
+  <!-- LOGIN -->
+  <div id="loginBox" class="card">
+    <div style="font-size:40px; margin-bottom:8px;">🏓</div>
+    <h2 style="justify-content:center; -webkit-text-fill-color:initial; background:none;">Pickleball Manager</h2>
+    <p style="color:#94a3b8; font-size:14px; margin-bottom:16px;">Nhập mật khẩu để quản lý giải đấu</p>
+    <input type="password" id="pass" placeholder="🔑 Mật khẩu..." onkeydown="if(event.key==='Enter')login()">
+    <button onclick="login()">Đăng nhập</button>
+    <div id="loginMsg" class="status error"></div>
+  </div>
+
+  <!-- MAIN DASHBOARD -->
+  <div id="mainBox" class="hidden">
+    
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+      <h2 style="margin:0;">📋 Quản lý VĐV</h2>
+      <span id="playerCount" class="badge hidden">0 VĐV</span>
+      <button class="btn-outline" style="width:auto; padding:8px 16px; margin:0;" onclick="logout()">🚪 Thoát</button>
+    </div>
+
+    <div class="card">
+      <textarea id="players" placeholder="Nhập tên VĐV (mỗi dòng 1 người)&#10;Ví dụ:&#10;Nguyễn Văn A&#10;Trần Thị B&#10;Lê Văn C"></textarea>
+      <p style="color:#94a3b8; font-size:12px; margin:8px 0 12px;">💡 Cần 5-12 VĐV để tạo lịch thi đấu</p>
+      
+      <button onclick="savePlayers()">💾 Lưu danh sách</button>
+      <button class="btn-secondary" onclick="createSchedule()">🔥 Tạo lịch thi đấu</button>
+      <button class="btn-outline" onclick="loadPlayers()">🔄 Tải lại dữ liệu</button>
+      
+      <div id="status" class="status"></div>
+    </div>
+
+    <!-- Stats Panel -->
+    <div id="statsPanel" class="card hidden">
+      <h2 style="margin-bottom:12px;">📊 Kết quả tạo lịch</h2>
+      <div class="stats-grid" id="statsGrid"></div>
+      <p style="color:#94a3b8; font-size:12px; margin-top:12px; text-align:center;">
+        🎯 Mode: <strong id="modeDisplay">-</strong> | Tổng trận: <strong id="matchesDisplay">-</strong>
+      </p>
+    </div>
+
+  </div>
+
+</div>
+
+<!-- Floating Action Buttons -->
+<div id="fabGroup" class="fab-group hidden">
+  <button class="fab-btn btn-secondary" onclick="createSchedule()">⚡ Tạo lịch nhanh</button>
+  <button class="fab-btn" onclick="window.open('https://ductrong49.github.io/ritapickleball/tyso.html','_blank')">🏆 Nhập tỷ số</button>
+</div>
+
+<!-- Confirm Modal -->
+<div id="confirmModal" class="modal hidden">
+  <div class="modal-content">
+    <div style="font-size:40px; margin-bottom:8px;">⚠️</div>
+    <h3 style="margin-bottom:12px;">Xác nhận tạo lịch mới?</h3>
+    <p style="color:#94a3b8; font-size:14px; margin-bottom:20px;">
+      Lịch thi đấu cũ sẽ bị ghi đè. Bạn có muốn tiếp tục?
+    </p>
+    <div class="modal-buttons">
+      <button class="btn-danger" onclick="closeModal()">Hủy</button>
+      <button onclick="confirmCreateSchedule()">Tiếp tục</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast Container -->
+<div id="toast" class="toast"></div>
+
+<script>
+// ===== CONFIG =====
+const PASSWORD = "123";
+const API_URL = "https://script.google.com/macros/s/AKfycbxyjSKqBHxBoIuMIrmx8niKyYPVeAkMFVA3czmi5Zm5DG_LY_7MzkQhXF2TghhF0Dpu3Q/exec";
+const SCORE_URL = "https://ductrong49.github.io/ritapickleball/tyso.html";
+
+// ===== STATE =====
+let originalPlayers = [];
+
+// ===== LOGIN =====
+function login() {
+  const pass = document.getElementById("pass").value;
+  const msg = document.getElementById("loginMsg");
+  
+  if (pass === PASSWORD) {
+    document.getElementById("loginBox").classList.add("hidden");
+    document.getElementById("mainBox").classList.remove("hidden");
+    document.getElementById("fabGroup").classList.remove("hidden");
+    loadPlayers();
+    showToast("🎉 Đăng nhập thành công!", "success");
+  } else {
+    msg.textContent = "❌ Sai mật khẩu!";
+    msg.className = "status error show";
+    setTimeout(() => msg.classList.remove("show"), 3000);
+  }
+}
+
+function logout() {
+  location.reload();
+}
+
+// ===== UI HELPERS =====
+function showStatus(msg, type = "loading") {
+  const el = document.getElementById("status");
+  el.textContent = msg;
+  el.className = `status ${type} show`;
+}
+
+function hideStatus() {
+  document.getElementById("status").classList.remove("show");
+}
+
+function showToast(msg, type = "success") {
+  const toast = document.getElementById("toast");
+  toast.innerHTML = `${type === "error" ? "❌" : "✅"} ${msg}`;
+  toast.className = `toast ${type} show`;
+  
+  setTimeout(() => {
+    toast.classList.remove("show");
+  }, 4000);
+}
+
+function setLoading(btn, loading) {
+  btn.disabled = loading;
+  if (loading) {
+    btn.dataset.original = btn.innerHTML;
+    btn.innerHTML = '<span class="loader"></span> Đang xử lý...';
+  } else {
+    btn.innerHTML = btn.dataset.original || btn.innerHTML;
+  }
+}
+
+function updatePlayerCount(count) {
+  const badge = document.getElementById("playerCount");
+  badge.textContent = `${count} VĐV`;
+  badge.classList.toggle("hidden", count === 0);
+}
+
+function showStats(result) {
+  const panel = document.getElementById("statsPanel");
+  const grid = document.getElementById("statsGrid");
+  
+  document.getElementById("modeDisplay").textContent = result.mode;
+  document.getElementById("matchesDisplay").textContent = result.matches;
+  
+  // Build stats grid
+  grid.innerHTML = Object.entries(result.stats || {})
+    .slice(0, 8)
+    .map(([name, matches]) => `
+      <div class="stat-item">
+        <div style="color:#94a3b8; font-size:11px; overflow:hidden; text-overflow:ellipsis;">${name}</div>
+        <div class="stat-value">${matches} trận</div>
+      </div>
+    `).join("");
+  
+  panel.classList.remove("hidden");
+}
+
+// ===== API CALL =====
+async function callAPI(action, data = {}) {
   try {
-    const action = e?.parameter?.action;
-    const body = parseBody(e);
+    const response = await fetch(API_URL, {
+      method: "POST",
+      // ⚠️ Quan trọng: text/plain để tránh CORS preflight với GAS Web App
+      headers: { "Content-Type": "text/plain;charset=utf-8" },
+      body: JSON.stringify({ action, ...data })
+    });
     
-    Logger.log(`[API] action:${action} body:${JSON.stringify(body).slice(0,200)}`);
-    
-    switch(action) {
-      case "ping": 
-        return jsonResponse({ success: true, message: "API OK", time: new Date().toISOString() });
-        
-      case "getPlayers": 
-        return jsonResponse(getPlayers());
-        
-      case "savePlayers": 
-        return jsonResponse(savePlayers(body?.players));
-        
-      case "createSchedule": 
-        return jsonResponse(createSchedule());
-        
-      default: 
-        return jsonResponse({ success: false, error: `Action không hợp lệ: ${action}` });
+    // Kiểm tra content-type
+    const contentType = response.headers.get("content-type");
+    if (!contentType || !contentType.includes("application/json")) {
+      const text = await response.text();
+      if (text.includes("403") || text.includes("404") || text.startsWith("<!DOCTYPE")) {
+        throw new Error("❌ Lỗi truy cập API!\n\nKiểm tra:\n• Web App đã deploy với quyền 'Anyone'\n• URL API đúng\n• Không bị chặn bởi adblocker");
+      }
+      throw new Error("Server trả về dữ liệu không hợp lệ");
     }
+    
+    const json = await response.json();
+    
+    if (!json.success) {
+      throw new Error(json.error || "Lỗi từ server");
+    }
+    
+    return json;
     
   } catch (err) {
-    Logger.log(`[ERROR] ${err.message}\n${err.stack}`);
-    return jsonResponse({ success: false, error: err.message });
+    if (err.message.includes("Failed to fetch")) {
+      throw new Error("❌ Không thể kết nối đến API!\n\nKiểm tra:\n• Internet ổn định\n• URL API chính xác\n• Web App đã public");
+    }
+    throw err;
   }
 }
 
-// ===== UTILS =====
-function parseBody(e) {
-  if (!e?.postData?.contents) return {};
+// ===== LOAD PLAYERS =====
+async function loadPlayers() {
+  showStatus("🔄 Đang tải danh sách...");
+  
   try {
-    return JSON.parse(e.postData.contents);
-  } catch {
-    return {};
-  }
-}
-
-function jsonResponse(data) {
-  return ContentService
-    .createTextOutput(JSON.stringify(data))
-    .setMimeType(ContentService.MimeType.JSON);
-}
-
-function getSheet(name) {
-  const ss = SpreadsheetApp.openById(CONFIG.SPREADSHEET_ID);
-  const sheet = ss.getSheetByName(name);
-  if (!sheet) throw new Error(`Sheet '${name}' không tồn tại`);
-  return sheet;
-}
-
-function getOrCreateSheet(name) {
-  const ss = SpreadsheetApp.openById(CONFIG.SPREADSHEET_ID);
-  let sheet = ss.getSheetByName(name);
-  if (!sheet) sheet = ss.insertSheet(name);
-  return sheet;
-}
-
-// ===== PLAYER MANAGEMENT =====
-function getPlayers() {
-  const sheet = getSheet(CONFIG.SHEET_PLAYERS);
-  const lastRow = sheet.getLastRow();
-  
-  if (lastRow < 2) return { success: true, players: [] };
-  
-  const values = sheet.getRange(2, 1, lastRow - 1, 1)
-    .getValues()
-    .flat()
-    .map(v => String(v).trim())
-    .filter(v => v);
+    const result = await callAPI("getPlayers");
+    const players = result.players || [];
     
-  return { success: true, players: values };
+    document.getElementById("players").value = players.join("\n");
+    originalPlayers = [...players];
+    updatePlayerCount(players.length);
+    
+    showStatus(`✅ Đã tải ${players.length} VĐV`, "success");
+    setTimeout(hideStatus, 2500);
+    
+  } catch (err) {
+    showStatus(err.message, "error");
+    showToast(err.message, "error");
+  }
 }
 
-function savePlayers(arr) {
-  if (!Array.isArray(arr)) throw new Error("Dữ liệu không hợp lệ");
+// ===== SAVE PLAYERS =====
+async function savePlayers() {
+  const text = document.getElementById("players").value.trim();
+  const btn = event?.target;
   
-  const sheet = getSheet(CONFIG.SHEET_PLAYERS);
-  sheet.getRange("A2:A").clearContent();
-  
-  const clean = arr.map(v => String(v).trim()).filter(v => v);
-  
-  if (clean.length > 0) {
-    sheet.getRange(2, 1, clean.length, 1).setValues(clean.map(p => [p]));
+  if (!text) {
+    showToast("⚠️ Vui lòng nhập danh sách VĐV!", "error");
+    return;
   }
   
-  return { 
-    success: true, 
-    message: `Đã lưu ${clean.length} VĐV`,
-    count: clean.length 
-  };
+  const players = text.split("\n").map(s => s.trim()).filter(s => s);
+  
+  if (players.length < 5) {
+    showToast(`⚠️ Cần tối thiểu 5 VĐV (hiện có ${players.length})`, "error");
+    return;
+  }
+  if (players.length > 12) {
+    showToast(`⚠️ Tối đa 12 VĐV (hiện có ${players.length})`, "error");
+    return;
+  }
+  
+  setLoading(btn, true);
+  showStatus("💾 Đang lưu danh sách...");
+  
+  try {
+    const result = await callAPI("savePlayers", { players });
+    
+    originalPlayers = [...players];
+    updatePlayerCount(players.length);
+    
+    showStatus(`✅ ${result.message}`, "success");
+    showToast("💾 Đã lưu danh sách!", "success");
+    setTimeout(hideStatus, 2500);
+    
+  } catch (err) {
+    showStatus(err.message, "error");
+    showToast(err.message, "error");
+  } finally {
+    setLoading(btn, false);
+  }
 }
 
-// ===== SCHEDULE GENERATION (Optimized for Web App) =====
+// ===== CREATE SCHEDULE =====
 function createSchedule() {
-  const players = getPlayers().players;
+  const text = document.getElementById("players").value.trim();
+  const players = text.split("\n").map(s => s.trim()).filter(s => s);
   
-  // Validate
   if (players.length < 5 || players.length > 12) {
-    throw new Error(`Cần 5-12 VĐV để tạo lịch. Hiện có: ${players.length}`);
+    showToast("⚠️ Cần 5-12 VĐV để tạo lịch!", "error");
+    return;
   }
   
-  const N = players.length;
-  const mode = N <= 6 ? "NO_REPEAT" : N <= 8 ? "HYBRID" : "FULL_MATCH";
-  const targetMatches = N - 1; // Mỗi VĐV nên chơi ~N-1 trận
-  
-  // Stats tracking
-  const playerMatches = {};
-  const pairHistory = {};
-  const opponentHistory = {};
-  players.forEach(p => playerMatches[p] = 0);
-  
-  const pairKey = (a, b) => [a, b].sort().join("|");
-  const matches = [];
-  
-  // ⚠️ Giới hạn vòng lặp để tránh timeout (GAS max 6 phút)
-  const maxIterations = N <= 8 ? 4000 : 6000;
-  let iterations = 0;
-  
-  while (iterations++ < maxIterations) {
-    // Check stop condition (cho mode không phải NO_REPEAT)
-    if (mode !== "NO_REPEAT" && players.every(p => playerMatches[p] >= targetMatches)) {
-      break;
-    }
-    
-    let bestMatch = null;
-    let bestScore = Infinity;
-    
-    // Duyệt tất cả combination 4 người → 2 đội
-    for (let i = 0; i < N; i++) {
-      for (let j = i + 1; j < N; j++) {
-        for (let k = 0; k < N; k++) {
-          for (let l = k + 1; l < N; l++) {
-            const team1 = [players[i], players[j]];
-            const team2 = [players[k], players[l]];
-            const allPlayers = [...team1, ...team2];
-            
-            // Phải có 4 người khác nhau
-            if (new Set(allPlayers).size < 4) continue;
-            
-            const pair1Key = pairKey(team1[0], team1[1]);
-            const pair2Key = pairKey(team2[0], team2[1]);
-            
-            // ===== MODE CONTROL =====
-            if (mode === "NO_REPEAT") {
-              // Không cho phép lặp cặp đã chơi
-              if (pairHistory[pair1Key] || pairHistory[pair2Key]) continue;
-            }
-            if (mode === "HYBRID") {
-              // 60% chance skip nếu cặp đã chơi
-              if ((pairHistory[pair1Key] || pairHistory[pair2Key]) && Math.random() < 0.6) continue;
-            }
-            
-            // ===== SCORING (càng thấp càng tốt) =====
-            let score = 0;
-            
-            // Ưu tiên: người ít trận được chọn trước
-            allPlayers.forEach(p => {
-              score += (playerMatches[p] || 0) * 4;
-            });
-            
-            // Phạt: cặp đã từng chơi chung
-            score += (pairHistory[pair1Key] || 0) * 45;
-            score += (pairHistory[pair2Key] || 0) * 45;
-            
-            // Phạt: đối thủ đã gặp nhau
-            team1.forEach(p1 => {
-              team2.forEach(p2 => {
-                const oppKey = pairKey(p1, p2);
-                score += (opponentHistory[oppKey] || 0) * 12;
-              });
-            });
-            
-            // Random nhỏ để tránh bias
-            score += Math.random() * 0.1;
-            
-            if (score < bestScore) {
-              bestScore = score;
-              bestMatch = { team1, team2 };
-            }
-          }
-        }
-      }
-    }
-    
-    // Không tìm được match phù hợp
-    if (!bestMatch) break;
-    
-    // Lưu match
-    matches.push(bestMatch);
-    const { team1, team2 } = bestMatch;
-    
-    // Update stats
-    [...team1, ...team2].forEach(p => {
-      playerMatches[p] = (playerMatches[p] || 0) + 1;
-    });
-    
-    pairHistory[pairKey(team1[0], team1[1])] = (pairHistory[pairKey(team1[0], team1[1])] || 0) + 1;
-    pairHistory[pairKey(team2[0], team2[1])] = (pairHistory[pairKey(team2[0], team2[1])] || 0) + 1;
-    
-    team1.forEach(p1 => {
-      team2.forEach(p2 => {
-        const key = pairKey(p1, p2);
-        opponentHistory[key] = (opponentHistory[key] || 0) + 1;
-      });
-    });
-  }
-  
-  // ===== WRITE TO SHEET =====
-  const sheet = getOrCreateSheet(CONFIG.SHEET_SCHEDULE);
-  sheet.clearContents();
-  
-  // Header
-  sheet.appendRow(["Trận", "P1", "P2", "P3", "P4", "Điểm1", "Điểm2", "Thắng1", "Thắng2"]);
-  sheet.getRange(1, 1, 1, 9)
-    .setFontWeight("bold")
-    .setBackground("#1e293b")
-    .setFontColor("#e2e8f0")
-    .setHorizontalAlignment("center");
-  
-  // Matches with formulas
-  matches.forEach((m, idx) => {
-    const row = idx + 2;
-    sheet.appendRow([
-      idx + 1,
-      m.team1[0], m.team1[1],
-      m.team2[0], m.team2[1],
-      "", "", // Điểm để người dùng nhập
-      `=IF(F${row}>G${row},1,0)`, // Thắng1
-      `=IF(G${row}>F${row},1,0)`  // Thắng2
-    ]);
-  });
-  
-  // Auto-format
-  sheet.autoResizeColumns(1, 9);
-  sheet.getRange("H2:I").setHorizontalAlignment("center");
-  
-  // ===== RETURN RESULT =====
-  const stats = {};
-  players.forEach(p => stats[p] = playerMatches[p] || 0);
-  
-  Logger.log(`[SCHEDULE] Created ${matches.length} matches | Mode: ${mode} | Players: ${N}`);
-  
-  return {
-    success: true,
-    message: `✅ Tạo thành công ${matches.length} trận`,
-    matches: matches.length,
-    mode: mode,
-    players: N,
-    stats: stats
-  };
+  // Show confirm modal
+  document.getElementById("confirmModal").classList.remove("hidden");
 }
+
+function closeModal() {
+  document.getElementById("confirmModal").classList.add("hidden");
+}
+
+async function confirmCreateSchedule() {
+  closeModal();
+  
+  const btn = document.querySelector('button[onclick="createSchedule()"]');
+  setLoading(btn, true);
+  showStatus("⚡ Đang tạo lịch thi đấu...");
+  
+  try {
+    const result = await callAPI("createSchedule");
+    
+    showStatus(`✅ ${result.message}`, "success");
+    showToast(`🎉 Tạo ${result.matches} trận thành công!`, "success");
+    
+    // Show detailed stats
+    showStats(result);
+    
+    setTimeout(hideStatus, 3000);
+    
+  } catch (err) {
+    showStatus(err.message, "error");
+    showToast(err.message, "error");
+  } finally {
+    setLoading(btn, false);
+  }
+}
+
+// ===== INIT =====
+// Auto-focus password field
+document.getElementById("pass")?.focus();
+
+// Close modal on outside click
+document.getElementById("confirmModal")?.addEventListener("click", (e) => {
+  if (e.target.id === "confirmModal") closeModal();
+});
+</script>
+
+</body>
+</html>
