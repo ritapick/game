@@ -1,4 +1,19 @@
-<!DOCTYPE html>
+
+                        <!DOCTYPE html>
+                        <html lang="en">
+                        <head>
+                            <meta charset="UTF-8">
+                            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+              <style>
+                body {
+                  background-color: white; /* Ensure the iframe has a white background */
+                }
+
+                
+              </style>
+                        </head>
+                        <body>
+                            <!DOCTYPE html>
 <html lang="vi">
 <head>
 <meta charset="UTF-8">
@@ -105,7 +120,8 @@ textarea { min-height: 150px; font-family: monospace; resize: vertical; }
 // ================= CẤU HÌNH =================
 const PASSWORD = "123";
 const SCORE_PAGE_URL = "https://ductrong49.github.io/ritapickleball/tyso.html";
-const API_URL = "https://script.google.com/macros/s/AKfycbwO-K7GM3d9A_hiEXRJMhQOrWlYNiry-KnPATDXFz0E7Gjtqn2aeZqNew9fDozkuoHL6Q/exec";
+// ⚠️ PASTE ĐÚNG URL WEB APP CỦA BẠN VÀO ĐÂY
+const API_URL = "https://script.google.com/macros/s/AKfycbx6DwY0sjXIv2ye2MIkEbihO5_buy4ZXYp8Zz7lCbgkj2LQF_RI4vOi4NT4skgcgdRJtQ/exec";
 
 // ================= XỬ LÝ LOGIC =================
 
@@ -130,22 +146,30 @@ function showStatus(elId, msg, type) {
   el.className = `status ${type}`;
 }
 
-// 🛠️ HÀM GỌI API AN TOÀN
+// 🛠️ HÀM GỌI API
 async function fetchAPI(action, method = "GET", body = null) {
+  // Gửi action trong URL để đảm bảo Script luôn nhận được
+  const url = API_URL + "?action=" + encodeURIComponent(action);
+  
+  const options = { method: method };
+
+  if (body) {
+    options.body = JSON.stringify(body);
+    // Dùng text/plain để tránh lỗi CORS preflight chặn request
+    options.headers = { "Content-Type": "text/plain;charset=utf-8" };
+  }
+
   try {
-    const res = await fetch(API_URL, {
-      method: method,
-      headers: { "Content-Type": "application/json" },
-      body: body ? JSON.stringify(body) : null
-    });
-    
+    const res = await fetch(url, options);
     const text = await res.text();
-    
+
     if (text.trim().startsWith("<")) {
-      throw new Error("Lỗi API: Server trả về HTML. Kiểm tra quyền 'Anyone' khi Deploy Apps Script.");
+      throw new Error("Lỗi API: Server trả về HTML. Kiểm tra quyền truy cập Web App (Anyone).");
     }
-    
-    return JSON.parse(text);
+
+    const json = JSON.parse(text);
+    if (!json.success) throw new Error(json.error || "Lỗi không xác định từ Server");
+    return json;
   } catch (err) {
     throw err;
   }
@@ -158,8 +182,7 @@ async function loadData() {
   txtBox.disabled = true;
 
   try {
-    const data = await fetchAPI("getPlayers");
-    if (!data.success) throw new Error(data.error);
+    const data = await fetchAPI("getPlayers"); // Gửi action="getPlayers"
     
     txtBox.value = data.players.join('\n');
     txtBox.disabled = false;
@@ -183,8 +206,9 @@ async function savePlayers() {
 
   showStatus('mainStatus', '<span class="loader"></span> Đang lưu...', 'loading');
   try {
-    const data = await fetchAPI("savePlayers", "POST", { action: "savePlayers", players: list });
-    if (!data.success) throw new Error(data.error);
+    // Gửi action="savePlayers" và dữ liệu players
+    const data = await fetchAPI("savePlayers", "POST", { players: list });
+    
     showStatus('mainStatus', `✅ ${data.message}`, 'success');
     loadData();
   } catch (err) {
@@ -196,8 +220,7 @@ async function savePlayers() {
 async function createSchedule() {
   showStatus('mainStatus', '<span class="loader"></span> Đang tạo lịch...', 'loading');
   try {
-    const data = await fetchAPI("createSchedule", "POST", { action: "createSchedule" });
-    if (!data.success) throw new Error(data.error);
+    const data = await fetchAPI("createSchedule", "POST", {});
     showStatus('mainStatus', `✅ ${data.message}`, 'success');
   } catch (err) {
     showStatus('mainStatus', '❌ ' + err.message, 'error');
@@ -216,12 +239,12 @@ async function executeNewGame() {
     const text = document.getElementById('playersList').value;
     const list = text.split('\n').map(s => s.trim()).filter(s => s);
 
-    const resSave = await fetchAPI("savePlayers", "POST", { action: "savePlayers", players: list });
-    if (!resSave.success) throw new Error(resSave.error);
+    // Bước 1: Lưu
+    await fetchAPI("savePlayers", "POST", { players: list });
 
+    // Bước 2: Tạo lịch
     showStatus('mainStatus', '<span class="loader"></span> Bước 2/2: Tạo lịch thi đấu...', 'loading');
-    const resSched = await fetchAPI("createSchedule", "POST", { action: "createSchedule" });
-    if (!resSched.success) throw new Error(resSched.error);
+    await fetchAPI("createSchedule", "POST", {});
 
     showStatus('mainStatus', '🎉 HOÀN TẤT! Đã tạo Game mới thành công.', 'success');
     loadData();
@@ -236,3 +259,80 @@ function goScore() { window.location.href = SCORE_PAGE_URL; }
 </body>
 </html>
 
+
+
+              <script>
+                              /* FILE: Code.gs */
+var SPREADSHEET_ID = "1GUr4TFhq_Ha65en9vthhtii35-RWg28qeEcLiVJaVek";
+var SHEET_NAME = "DanhSachVDV";
+
+function doGet(e) { return processRequest(e); }
+function doPost(e) { return processRequest(e); }
+
+function processRequest(e) {
+  // 1. Tìm action trong URL (?action=...)
+  var action = (e.parameter && e.parameter.action) ? e.parameter.action : "";
+
+  // 2. Nếu không có trong URL, tìm trong Body JSON
+  if (!action && e.postData && e.postData.contents) {
+    try {
+      var body = JSON.parse(e.postData.contents);
+      if (body.action) action = body.action;
+    } catch (err) {}
+  }
+
+  // 3. Xử lý lệnh
+  switch (action) {
+    case "getPlayers": return reply(getPlayers());
+    case "savePlayers":
+      var payload = e.postData ? JSON.parse(e.postData.contents) : {};
+      return reply(savePlayers(payload.players));
+    case "createSchedule": return reply(createSchedule());
+    default:
+      return reply({ success: false, error: "Action không hợp lệ hoặc bị thiếu: " + action });
+  }
+}
+
+function getTargetSheet() {
+  var ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+  var sheet = ss.getSheetByName(SHEET_NAME);
+  if (!sheet) throw new Error("Không tìm thấy sheet " + SHEET_NAME);
+  return sheet;
+}
+
+function getPlayers() {
+  var sheet = getTargetSheet();
+  var lastRow = sheet.getLastRow();
+  if (lastRow < 2) return { success: true, players: [], count: 0 };
+  
+  var data = sheet.getRange(2, 1, lastRow - 1, 1).getValues().flat();
+  var list = data.filter(function(p){ return p !== null && String(p).trim() !== ""; }).map(String);
+  return { success: true, players: list, count: list.length };
+}
+
+function savePlayers(arr) {
+  var sheet = getTargetSheet();
+  sheet.getRange("A2:A").clearContent();
+  
+  if (!Array.isArray(arr) || arr.length === 0) {
+    return { success: true, message: "Đã xóa danh sách cũ", count: 0 };
+  }
+  
+  var clean = arr.filter(function(p){ return String(p).trim() !== ""; }).map(function(p){ return [String(p).trim()]; });
+  if (clean.length > 0) sheet.getRange(2, 1, clean.length, 1).setValues(clean);
+  return { success: true, message: "Đã lưu " + clean.length + " VĐV", count: clean.length };
+}
+
+function createSchedule() {
+  return { success: true, message: "Đã kích hoạt tạo lịch" };
+}
+
+function reply(obj) {
+  return ContentService.createTextOutput(JSON.stringify(obj)).setMimeType(ContentService.MimeType.JSON);
+}
+
+
+              </script>
+                        </body>
+                        </html>
+                    
