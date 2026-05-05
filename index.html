@@ -1,352 +1,610 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>HOÀNG QUỐC VIỆT PICKLEBALL</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>🏆 Robin Round</title>
+    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #ff6b35;
+            --primary-glow: rgba(255,107,53,0.4);
+            --secondary: #00b4d8;
+            --accent: #ffd166;
+            --bg-dark: #0b0f19;
+            --bg-card: #141a2b;
+            --bg-card-hover: #1c2438;
+            --border: rgba(255,255,255,0.06);
+            --text: #e8ecf4;
+            --text-dim: #7a8ba5;
+            --green: #22c55e;
+            --red: #ef4444;
+        }
 
-<!-- Font: Oswald for sports look -->
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;600;700&display=swap" rel="stylesheet">
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
-<style>
-  :root {
-    --primary-color: #00f2ff; /* Cyan Neon */
-    --secondary-color: #ccff00; /* Lime Green */
-    --bg-dark: #0a0a0a;
-    --glass-bg: rgba(20, 20, 25, 0.85);
-    --text-gradient: linear-gradient(90deg, #ffffff, #00f2ff);
-  }
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-dark);
+            color: var(--text);
+            min-height: 100vh;
+            overflow-x: hidden;
+            padding-bottom: 40px;
+        }
 
-  body {
-    margin: 0;
-    padding: 0;
-    font-family: 'Oswald', sans-serif;
-    background-color: var(--bg-dark);
-    background-image: url('https://image.qwenlm.ai/public_source/4a049a49-0398-4b5b-93ea-9691e7b8a93e/16bfa2e7b-4d27-460a-835b-ffc3d74c517a.png'); /* Generated Sports BG */
-    background-size: cover;
-    background-position: center;
-    background-attachment: fixed;
-    color: white;
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    overflow-x: hidden;
-  }
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background: 
+                radial-gradient(ellipse at 15% 20%, rgba(255,107,53,0.08) 0%, transparent 45%),
+                radial-gradient(ellipse at 85% 80%, rgba(0,180,216,0.06) 0%, transparent 45%);
+            pointer-events: none;
+            z-index: 0;
+        }
 
-  /* Overlay to darken background for readability */
-  body::before {
-    content: '';
-    position: fixed;
-    top: 0; left: 0; right: 0; bottom: 0;
-    background: radial-gradient(circle at center, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0.8) 100%);
-    z-index: -1;
-  }
+        .wrapper {
+            position: relative;
+            z-index: 1;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 12px;
+        }
 
-  /* TOP BAR: Weather & Time */
-  .top-bar {
-    width: 100%;
-    max-width: 480px;
-    padding: 15px 20px;
-    box-sizing: border-box;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background: linear-gradient(180deg, rgba(0,0,0,0.8) 0%, transparent 100%);
-    position: sticky;
-    top: 0;
-    z-index: 100;
-  }
+        /* Header */
+        header {
+            text-align: center;
+            padding: 24px 8px 20px;
+            position: relative;
+        }
 
-  .weather-widget {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 14px;
-    color: #ddd;
-    text-shadow: 0 1px 2px black;
-  }
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: linear-gradient(90deg, var(--primary), var(--accent));
+            color: #000;
+            font-family: 'Oswald', sans-serif;
+            font-weight: 700;
+            font-size: 0.65rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            padding: 4px 14px;
+            border-radius: 20px;
+            margin-bottom: 12px;
+            box-shadow: 0 0 15px var(--primary-glow);
+        }
 
-  .time-widget {
-    font-weight: 700;
-    font-size: 18px;
-    color: var(--primary-color);
-    letter-spacing: 1px;
-    text-shadow: 0 0 10px rgba(0, 242, 255, 0.5);
-  }
+        header h1 {
+            font-family: 'Oswald', sans-serif;
+            font-size: clamp(1.8rem, 7vw, 2.6rem);
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            background: linear-gradient(135deg, #fff 20%, var(--accent), var(--primary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            line-height: 1.5;
+        }
 
-  /* MAIN CONTAINER */
-  .main-wrapper {
-    width: 100%;
-    max-width: 480px;
-    padding: 20px;
-    box-sizing: border-box;
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-  }
+        header p {
+            color: var(--text-dim);
+            margin-top: 6px;
+            font-size: 0.85rem;
+            font-weight: 400;
+        }
 
-  /* TITLE SECTION */
-  .title-box {
-    text-align: center;
-    margin-bottom: 50px;
-    animation: slideDown 0.8s ease-out;
-  }
+        .divider {
+            width: 50px; height: 3px;
+            background: linear-gradient(90deg, var(--primary), var(--accent));
+            margin: 14px auto 0;
+            border-radius: 2px;
+        }
 
-  .main-title {
-    font-size: 32px;
-    font-weight: 700;
-    text-transform: uppercase;
-    margin: 0;
-    background: var(--text-gradient);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5));
-    line-height: 1.1;
-  }
+        /* Section */
+        .section { margin-bottom: 28px; }
 
-  .sub-title {
-    font-size: 20px;
-    color: var(--secondary-color);
-    font-weight: 600;
-    margin-top: 5px;
-    text-transform: uppercase;
-    letter-spacing: 2px;
-  }
+        .section-head {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 14px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--border);
+        }
 
-  .date-badge {
-    display: inline-block;
-    margin-top: 10px;
-    padding: 5px 15px;
-    border: 1px solid var(--primary-color);
-    border-radius: 20px;
-    font-size: 14px;
-    color: white;
-    background: rgba(0, 242, 255, 0.1);
-    backdrop-filter: blur(5px);
-  }
+        .section-icon {
+            width: 34px; height: 34px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+            flex-shrink: 0;
+        }
 
-  /* IMAGE GRID */
-  .card-container {
-    display: flex;
-    justify-content: center;
-    gap: 20px;
-    width: 100%;
-  }
+        .icon-rank { background: linear-gradient(135deg, var(--primary), #ff9248); }
+        .icon-match { background: linear-gradient(135deg, var(--secondary), #0096c7); }
 
-  .card-item {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    text-decoration: none; /* No underline */
-    group: hover;
-    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-  }
+        .section-head h2 {
+            font-family: 'Oswald', sans-serif;
+            font-size: 1.15rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+        }
 
-  .card-item:hover {
-    transform: translateY(-10px);
-  }
+        .section-head h2 span { color: var(--accent); }
 
-  .img-wrapper {
-    position: relative;
-    width: 100%;
-    aspect-ratio: 1 / 1;
-    border-radius: 15px;
-    overflow: hidden;
-    border: 2px solid rgba(255,255,255,0.1);
-    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-    background: #1a1a1a;
-  }
+        .badge-count {
+            margin-left: auto;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            padding: 3px 9px;
+            border-radius: 12px;
+            font-size: 0.7rem;
+            color: var(--text-dim);
+            font-family: 'Oswald', sans-serif;
+            letter-spacing: 0.5px;
+        }
 
-  .card-item img {
-    width: 100%;
-    height: 100%;
-    object-fit: contain;
-    transition: opacity 0.3s;
-  }
+        /* Loading */
+        .loader {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 30px 12px;
+            gap: 12px;
+        }
 
-  .card-item:hover .img-wrapper {
-    border-color: var(--primary-color);
-    box-shadow: 0 0 20px rgba(0, 242, 255, 0.3);
-  }
+        .spinner {
+            width: 36px; height: 36px;
+            border: 3px solid var(--border);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: rotate 0.7s linear infinite;
+        }
 
-  .card-label {
-    margin-top: 15px;
-    font-size: 18px;
-    font-weight: 600;
-    color: white;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    text-shadow: 0 2px 4px black;
-    position: relative;
-  }
+        @keyframes rotate { to { transform: rotate(360deg); } }
 
-  .card-label::after {
-    content: '';
-    display: block;
-    width: 0%;
-    height: 2px;
-    background: var(--secondary-color);
-    margin: 5px auto 0;
-    transition: width 0.3s;
-  }
+        .loader-text { color: var(--text-dim); font-size: 0.8rem; }
 
-  .card-item:hover .card-label::after {
-    width: 100%;
-  }
+        /* Ranking Table */
+        .rank-wrap {
+            background: var(--bg-card);
+            border-radius: 14px;
+            border: 1px solid var(--border);
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+        }
 
-  /* FOOTER LINK */
-  .footer-link {
-    margin-top: 50px;
-    text-align: center;
-    animation: fadeInUp 1s ease-out;
-  }
+        .rank-table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 340px;
+            font-size: 0.85rem;
+        }
 
-  .btn-facebook {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-    background: linear-gradient(45deg, #1877f2, #005bea);
-    color: white;
-    padding: 15px 30px;
-    border-radius: 50px;
-    font-weight: bold;
-    font-size: 16px;
-    text-decoration: none;
-    box-shadow: 0 4px 15px rgba(24, 119, 242, 0.4);
-    transition: all 0.3s;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-  }
+        .rank-table thead th {
+            background: rgba(255,107,53,0.12);
+            padding: 11px 10px;
+            font-family: 'Oswald', sans-serif;
+            font-weight: 600;
+            font-size: 0.72rem;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            text-align: center;
+            color: var(--accent);
+            border-bottom: 2px solid var(--primary);
+            white-space: nowrap;
+            position: sticky;
+            top: 0;
+        }
 
-  .btn-facebook:hover {
-    transform: scale(1.05);
-    box-shadow: 0 6px 20px rgba(24, 119, 242, 0.6);
-    background: linear-gradient(45deg, #005bea, #1877f2);
-  }
+        .rank-table thead th:first-child { width: 42px; }
 
-  /* Animations */
-  @keyframes slideDown {
-    from { transform: translateY(-50px); opacity: 0; }
-    to { transform: translateY(0); opacity: 1; }
-  }
+        .rank-table tbody tr {
+            border-bottom: 1px solid var(--border);
+            transition: background 0.2s;
+        }
 
-  @keyframes fadeInUp {
-    from { transform: translateY(20px); opacity: 0; }
-    to { transform: translateY(0); opacity: 1; }
-  }
+        .rank-table tbody tr:hover { background: rgba(255,107,53,0.05); }
+        .rank-table tbody tr:last-child { border-bottom: none; }
 
-  /* Responsive adjustments */
-  @media (max-width: 350px) {
-    .main-title { font-size: 26px; }
-    .card-label { font-size: 16px; }
-  }
-</style>
+        .rank-table td {
+            padding: 10px 10px;
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        .rank-table td:first-child {
+            font-family: 'Oswald', sans-serif;
+            font-weight: 700;
+            font-size: 0.95rem;
+        }
+
+        .rank-table td:nth-child(2) {
+            text-align: left;
+            font-weight: 500;
+        }
+
+        .rank-num {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 28px; height: 28px;
+            border-radius: 50%;
+            font-size: 0.78rem;
+        }
+
+        .r1 { background: linear-gradient(135deg, #ffd700, #ffaa00); color: #000; box-shadow: 0 0 8px rgba(255,215,0,0.4); }
+        .r2 { background: linear-gradient(135deg, #c0c0c0, #8a8a8a); color: #000; }
+        .r3 { background: linear-gradient(135deg, #cd7f32, #a05a18); color: #fff; }
+        .r0 { background: var(--bg-card-hover); color: var(--text-dim); }
+
+        /* Match Cards */
+        .match-grid {
+            display: grid;
+            gap: 12px;
+        }
+
+        .match-card {
+            background: var(--bg-card);
+            border-radius: 14px;
+            border: 1px solid var(--border);
+            overflow: hidden;
+            transition: all 0.2s ease;
+            animation: fadeUp 0.4s ease forwards;
+            opacity: 0;
+        }
+
+        .match-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255,107,53,0.1);
+            border-color: rgba(255,107,53,0.2);
+        }
+
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(12px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .mc-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 8px 14px;
+            background: rgba(255,255,255,0.02);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .mc-round {
+            font-family: 'Oswald', sans-serif;
+            font-size: 0.7rem;
+            font-weight: 500;
+            letter-spacing: 0.8px;
+            text-transform: uppercase;
+            color: var(--text-dim);
+            background: var(--bg-card-hover);
+            padding: 3px 9px;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+        }
+
+        .mc-status {
+            font-size: 0.65rem;
+            font-weight: 600;
+            padding: 3px 8px;
+            border-radius: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+        }
+
+        .mc-status.done {
+            background: rgba(34,197,94,0.12);
+            color: var(--green);
+            border: 1px solid rgba(34,197,94,0.25);
+        }
+
+        .mc-status.wait {
+            background: rgba(255,209,102,0.12);
+            color: var(--accent);
+            border: 1px solid rgba(255,209,102,0.25);
+        }
+
+        .mc-body {
+            padding: 14px 10px;
+        }
+
+        .mc-teams {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+        }
+
+        .mc-team {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            text-align: center;
+        }
+
+        .mc-team-label {
+            font-size: 0.6rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-dim);
+        }
+
+        .mc-team-names {
+            font-weight: 600;
+            font-size: 0.82rem;
+            line-height: 1.4;
+        }
+
+        .mc-team-names .amp {
+            display: block;
+            color: var(--text-dim);
+            font-weight: 400;
+            font-size: 0.7rem;
+        }
+
+        .mc-vs {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+            flex-shrink: 0;
+            min-width: 60px;
+        }
+
+        .vs-circle {
+            width: 34px; height: 34px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Oswald', sans-serif;
+            font-weight: 700;
+            font-size: 0.7rem;
+            color: #000;
+        }
+
+        .mc-score-row {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .mc-score {
+            font-family: 'Oswald', sans-serif;
+            font-size: 1.35rem;
+            font-weight: 700;
+            min-width: 28px;
+            text-align: center;
+            padding: 2px 5px;
+            border-radius: 5px;
+        }
+
+        .mc-score.s1 {
+            color: var(--primary);
+            background: rgba(255,107,53,0.12);
+            border: 1px solid rgba(255,107,53,0.2);
+        }
+
+        .mc-score.s2 {
+            color: var(--secondary);
+            background: rgba(0,180,216,0.12);
+            border: 1px solid rgba(0,180,216,0.2);
+        }
+
+        .mc-score.sep {
+            color: var(--text-dim);
+            font-size: 0.9rem;
+            padding: 0;
+            background: none;
+            border: none;
+            min-width: auto;
+        }
+
+        .mc-noscore {
+            color: var(--text-dim);
+            font-size: 0.72rem;
+            font-style: italic;
+        }
+
+        /* Error */
+        .err-box {
+            background: rgba(239,68,68,0.08);
+            border: 1px solid rgba(239,68,68,0.25);
+            border-radius: 12px;
+            padding: 18px 14px;
+            text-align: center;
+        }
+
+        .err-box h3 { color: var(--red); margin-bottom: 6px; font-size: 0.95rem; }
+        .err-box p { color: var(--text-dim); font-size: 0.8rem; }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 24px 10px;
+            color: var(--text-dim);
+            font-size: 0.72rem;
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 4px; height: 4px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: var(--bg-card-hover); border-radius: 2px; }
+    </style>
 </head>
 <body>
 
-<!-- TOP BAR: Weather & Time -->
-<div class="top-bar">
-  <div class="weather-widget" id="weather-display">
-    <span id="weather-icon">☁️</span>
-    <span id="weather-temp">--°C</span>
-    <span style="font-size:12px; opacity:0.8;">Đức Trọng</span>
-  </div>
-  <div class="time-widget" id="clock-display">
-    00:00
-  </div>
+<div class="wrapper">
+    <header>
+        <div class="badge">🏓 Robin Round</div>
+        <h1>Giải Đấu Pickleball</h1>
+        <p>Bảng xếp hạng & Lịch thi đấu</p>
+        <div class="divider"></div>
+    </header>
+
+    <!-- Ranking -->
+    <section class="section">
+        <div class="section-head">
+            <div class="section-icon icon-rank">🏆</div>
+            <h2><span>Bảng Xếp Hạng</span></h2>
+        </div>
+        <div id="rank-area">
+            <div class="loader"><div class="spinner"></div><span class="loader-text">Đang tải...</span></div>
+        </div>
+    </section>
+
+    <!-- Matches -->
+    <section class="section">
+        <div class="section-head">
+            <div class="section-icon icon-match">⚡</div>
+            <h2><span>Lịch Thi Đấu & Kết Quả</span></h2>
+            <div class="badge-count" id="mc-count"></div>
+        </div>
+        <div id="match-area">
+            <div class="loader"><div class="spinner"></div><span class="loader-text">Đang tải...</span></div>
+        </div>
+    </section>
+
+    <footer>🏆 KARAOKE RITA</footer>
 </div>
 
-<div class="main-wrapper">
-  
-  <!-- TITLE -->
-  <div class="title-box">
-    <h1 class="main-title">HOÀNG QUỐC VIỆT<br>PICKLEBALL</h1>
-    <div class="sub-title">PICKLEBALL CUP</div>
-    <div class="date-badge">02/05/2026</div>
-  </div>
-
-  <!-- 2 IMAGES SIDE BY SIDE -->
-  <div class="card-container">
-
-    <!-- Item 1: 48.png -->
-    <a href="https://ductrong49.github.io/ritapickleball/hqv_4.2.html" class="card-item">
-      <div class="img-wrapper">
-        <img src="doinu.png" alt="Giải đấu 4.2" onerror="this.src='https://placehold.co/600x400/1a1a1a/FFF?text=4.2'">
-      </div>
-      <div class="card-label">ĐÔI NỮ</div>
-    </a>
-
-    <!-- Item 2: 52.png -->
-    <a href="https://ductrong49.github.io/ritapickleball/hqv_5.2.html" class="card-item">
-      <div class="img-wrapper">
-        <img src="52.PNG" alt="Giải đấu 5.2" onerror="this.src='https://placehold.co/600x400/1a1a1a/FFF?text=5.2'">
-      </div>
-      <div class="card-label">ĐÔI NAM</div>
-    </a>
-
-  </div>
-
-  
-
 <script>
-  // 1. Clock Functionality
-  function updateClock() {
-    const now = new Date();
-    const hours = String(now.getHours()).padStart(2, '0');
-    const minutes = String(now.getMinutes()).padStart(2, '0');
-    document.getElementById('clock-display').textContent = `${hours}:${minutes}`;
-  }
-  setInterval(updateClock, 1000);
-  updateClock();
+    const SHEET_ID = '1GUr4TFhq_Ha65en9vthhtii35-RWg28qeEcLiVJaVek';
+    const BASE = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq`;
 
-  // 2. Weather Simulation for Duc Trong, Lam Dong
-  // Note: Real-time weather requires an API Key (OpenWeatherMap etc). 
-  // Since this is a static frontend demo without backend proxy, we simulate realistic data for Duc Trong.
-  // Duc Trong is typically mild/cool.
-  
-  function getSimulatedWeather() {
-    const hour = new Date().getHours();
-    let temp = 22; // Base temp
-    let condition = "Mát mẻ";
-    let icon = "☁️";
-
-    // Simple logic: Warmer during day (11am - 2pm), cooler at night
-    if (hour >= 11 && hour <= 14) {
-      temp = 26;
-      condition = "Nắng nhẹ";
-      icon = "⛅";
-    } else if (hour >= 15 && hour <= 18) {
-      temp = 24;
-      condition = "Có mây";
-      icon = "🌤️";
-    } else if (hour >= 19 || hour <= 6) {
-      temp = 19;
-      condition = "Se lạnh";
-      icon = "🌙";
+    function getSheet(sheetName, range) {
+        const url = `${BASE}?tqx=out:json&sheet=${encodeURIComponent(sheetName)}&range=${encodeURIComponent(range)}`;
+        return fetch(url).then(r => r.text()).then(txt => {
+            const m = txt.match(/google\.visualization\.Query\.setResponse\(([\s\S]*?)\);?$/);
+            if (!m) throw new Error('Parse data failed');
+            return JSON.parse(m[1]);
+        });
     }
 
-    // Add slight randomness to make it feel alive on reload
-    const randomVar = Math.floor(Math.random() * 3) - 1; 
-    temp += randomVar;
+    function val(row, ci) {
+        if (!row.c || !row.c[ci] || row.c[ci].v == null) return '';
+        return String(row.c[ci].v);
+    }
 
-    return { temp, icon };
-  }
+    function renderRanking(data) {
+        const el = document.getElementById('rank-area');
+        const t = data.table;
+        if (!t || !t.rows || t.rows.length === 0) {
+            el.innerHTML = '<div class="err-box"><h3>Không có dữ liệu</h3><p>Không tìm thấy bảng xếp hạng.</p></div>';
+            return;
+        }
+        const hdrs = t.cols.map(c => c.label || '');
+        let h = '<div class="rank-wrap"><table class="rank-table"><thead><tr><th>#</th>';
+        hdrs.forEach(x => { h += `<th>${x}</th>`; });
+        h += '</tr></thead><tbody>';
 
-  function updateWeather() {
-    const weatherData = getSimulatedWeather();
-    document.getElementById('weather-temp').textContent = `${weatherData.temp}°C`;
-    document.getElementById('weather-icon').textContent = weatherData.icon;
-  }
+        t.rows.forEach((row, i) => {
+            const has = row.c && row.c.some(c => c && c.v !== '' && c.v !== null);
+            if (!has) return;
+            const rc = i < 3 ? `r${i+1}` : 'r0';
+            h += `<tr><td><span class="rank-num ${rc}">${i+1}</span></td>`;
+            for (let j = 0; j < hdrs.length; j++) {
+                const cls = j === 1 ? ' style="text-align:left;font-weight:500"' : '';
+                h += `<td${cls}>${val(row, j)}</td>`;
+            }
+            h += '</tr>';
+        });
 
-  // Initialize weather
-  updateWeather();
+        h += '</tbody></table></div>';
+        el.innerHTML = h;
+    }
 
+    function renderMatches(data) {
+        const el = document.getElementById('match-area');
+        const cnt = document.getElementById('mc-count');
+        const t = data.table;
+        if (!t || !t.rows || t.rows.length === 0) {
+            el.innerHTML = '<div class="err-box"><h3>Không có dữ liệu</h3><p>Không tìm thấy lịch thi đấu.</p></div>';
+            cnt.textContent = '';
+            return;
+        }
+
+        // Columns: A=0, B=1(t1p1), C=2(t1p2), D=3(t2p1), E=4(t2p2), F=5(score1), G=6(score2)
+        let count = 0;
+        let h = '<div class="match-grid">';
+
+        t.rows.forEach((row, idx) => {
+            const has = row.c && row.c.some(c => c && c.v !== '' && c.v !== null);
+            if (!has) return;
+            count++;
+
+            const round = val(row, 0);
+            const t1p1 = val(row, 1);
+            const t1p2 = val(row, 2);
+            const t2p1 = val(row, 3);
+            const t2p2 = val(row, 4);
+            const s1 = val(row, 5);
+            const s2 = val(row, 6);
+            const hasScore = s1 !== '' && s2 !== '';
+            const stCls = hasScore ? 'done' : 'wait';
+            const stTxt = hasScore ? 'Hoàn thành' : 'Chờ đấu';
+            const delay = Math.min(idx * 0.03, 1.2);
+
+            h += `<div class="match-card" style="animation-delay:${delay}s">`;
+            h += `<div class="mc-head"><span class="mc-round">${round || 'Trận ' + count}</span><span class="mc-status ${stCls}">${stTxt}</span></div>`;
+            h += `<div class="mc-body"><div class="mc-teams">`;
+
+            h += `<div class="mc-team"><span class="mc-team-label">Đội 1</span><div class="mc-team-names">${t1p1}<span class="amp">&</span>${t1p2}</div></div>`;
+
+            h += `<div class="mc-vs"><div class="vs-circle">VS</div>`;
+            if (hasScore) {
+                h += `<div class="mc-score-row"><span class="mc-score s1">${s1}</span><span class="mc-score sep">-</span><span class="mc-score s2">${s2}</span></div>`;
+            } else {
+                h += `<span class="mc-noscore">Chưa đấu</span>`;
+            }
+            h += `</div>`;
+
+            h += `<div class="mc-team"><span class="mc-team-label">Đội 2</span><div class="mc-team-names">${t2p1}<span class="amp">&</span>${t2p2}</div></div>`;
+
+            h += `</div></div></div>`;
+        });
+
+        h += '</div>';
+        el.innerHTML = h;
+        cnt.textContent = `${count} trận`;
+    }
+
+    async function init() {
+        try {
+            const [rankRes, matchRes] = await Promise.all([
+                getSheet('danhsachvdv', 'E1:I25'),
+                getSheet('lichthidau', 'A2:G100')
+            ]);
+            renderRanking(rankRes);
+            renderMatches(matchRes);
+        } catch (e) {
+            console.error(e);
+            const errMsg = `<div class="err-box"><h3>⚠️ Lỗi tải dữ liệu</h3><p>${e.message}</p><p style="margin-top:6px;font-size:0.8rem;">Đảm bảo Google Sheet đã chia sẻ công khai.</p></div>`;
+            document.getElementById('rank-area').innerHTML = errMsg;
+            document.getElementById('match-area').innerHTML = errMsg;
+        }
+    }
+
+    init();
+    // 🔄 reload dữ liệu
+setInterval(function(){
+    init();
+}, 10000);
+    
 </script>
 
 </body>
