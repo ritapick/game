@@ -83,6 +83,7 @@
     text-decoration: none;
   }
   .btn:active { transform: scale(0.97); }
+  .btn:disabled { opacity: 0.7; cursor: not-allowed; }
   .btn-primary {
     background: linear-gradient(135deg, #6366f1, #8b5cf6); color: white;
     box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4);
@@ -212,7 +213,7 @@
         <input type="checkbox" id="rememberMe" checked>
         <span>Ghi nhớ đăng nhập</span>
       </label>
-      <button class="btn btn-primary" onclick="doLogin()">
+      <button class="btn btn-primary" id="loginBtn" onclick="doLogin()">
         <span>Đăng nhập</span><span>→</span>
       </button>
     </div>
@@ -274,7 +275,7 @@
 <script>
 (function() {
   var PASSWORD = "123";
-  var API_URL = "https://script.google.com/macros/s/AKfycbyhzlTYzLTTVQB5HpvtrxZ-NMQB0HwT8dQH_MchZbN9xamE5lTvjh-N-RgNU730NMM9tw/exec";
+  var API_URL = "https://script.google.com/macros/s/AKfycbxyjSKqBHxBoIuMIrmx8niKyYPVeAkMFVA3czmi5Zm5DG_LY_7MzkQhXF2TghhF0Dpu3Q/exec";
   var originalPlayers = [];
 
   function callAPI(action, data) {
@@ -414,10 +415,21 @@
   window.doLogin = function() {
     var pass = document.getElementById("pass").value;
     if (pass === PASSWORD) {
+      var loginBtn = document.getElementById("loginBtn");
+      loginBtn.disabled = true;
+      loginBtn.innerHTML = '<span class="spinner"></span><span>Đang tải danh sách...</span>';
+
       setLoggedIn(document.getElementById("rememberMe").checked);
       document.getElementById("loginBox").className = "hidden";
       document.getElementById("mainBox").className = "";
+
+      // Tự động load danh sách VĐV ngay sau khi đăng nhập
       loadPlayers();
+
+      setTimeout(function() {
+        loginBtn.disabled = false;
+        loginBtn.innerHTML = '<span>Đăng nhập</span><span>→</span>';
+      }, 500);
     } else {
       alert("Sai mật khẩu!");
     }
@@ -436,6 +448,9 @@
     document.getElementById("playerCount").innerText = "0";
     document.getElementById("matchCount").innerText = "0";
     document.getElementById("roundCount").innerText = "0";
+    document.getElementById("listStatus").textContent = "Đang tải...";
+    document.getElementById("listStatus").style.background = "";
+    document.getElementById("listStatus").style.color = "";
   };
 
   window.createGame = function() {
@@ -471,6 +486,7 @@
       checkChanges();
     });
 
+    // Tự động đăng nhập nếu đã ghi nhớ & load danh sách VĐV
     if (isLoggedIn()) {
       document.getElementById("loginBox").className = "hidden";
       document.getElementById("mainBox").className = "";
